@@ -1,0 +1,26 @@
+{
+  "name": "nanodes",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dependency-free animated glyph text and images for the web.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Kashif Rezwi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kashif-Rezwi/nanodes.git"
+  },
+  "homepage": "https://github.com/Kashif-Rezwi/nanodes#readme",
+  "bugs": {
+    "url": "https://github.com/Kashif-Rezwi/nanodes/issues"
+  },
+  "keywords": [
+    "animation",
+    "ascii",
+    "unicode",
+    "glyphs",
+    "typography",
+    "svg",
+    "framework-agnostic"
+  ]
+}

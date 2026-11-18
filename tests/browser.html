@@ -1,0 +1,5 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Nanodes · Source comparison</title><link rel="stylesheet" href="/examples/page.css"><body><main>
+<h1>Portfolio source / extraction</h1><p>Generate the ignored source fixtures with <code>npm run reference -- /path/to/portfolio</code>.</p>
+<button id="run">Run deterministic comparison</button><pre id="result" role="status">Ready.</pre>
+<section style="display:flex;flex-wrap:wrap;gap:24px"><div><h2>Original source</h2><iframe title="Original portfolio contact" id="original" src="/.reference/contact.html?test" style="width:400px;height:400px;border:0"></iframe></div><div><h2>Nanodes extraction</h2><iframe title="Extracted contact" id="extracted" src="/tests/extracted.html?test" style="width:400px;height:400px;border:0"></iframe></div></section>
+</main><script type="module" src="/tests/browser.mjs"></script></body></html>

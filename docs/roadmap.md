@@ -1,363 +1,145 @@
-# Nanodes development roadmap
+# Nanodes roadmap
 
-Purpose: the single source of truth for Nanodes scope, source analysis, decisions, priorities, and phase acceptance criteria.
+The working plan for scope, architecture, and phase completion. Implementation has not started.
 
-- Maintainer: Kashif Rezwi
-- Last reviewed: 2026-11-18
-- Status: foundation and planning only; no library implementation or npm release.
+## Workflow
 
-## Contents
+**Plan → Implement → Review**, one phase at a time. Agree on the phase scope, implement it, then record verification and maintainer review here before advancing. Keep this document current rather than creating competing plans.
 
-- [Working agreement](#working-agreement)
-- [Source review](#source-review)
-- [Architecture and API discussion](#architecture-and-api-discussion)
-- [Performance and compatibility](#performance-and-compatibility)
-- [Development phases](#development-phases)
-- [Future extensions](#future-extensions)
-- [Decision record and references](#decision-record-and-references)
+## Portfolio reference
 
-## Working agreement
+Baseline: [portfolio commit cb8d321](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/commit/cb8d321297700866709cedb96fc1e8df362e8212).
 
-The workflow is **Plan → Implement → Review**, completing one phase before moving to the next.
+- [Contact.astro](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/src/sections/Contact.astro): 25 SVG silhouettes, label generation, styling, transitions, and playback.
+- [ascii-roles.ts](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/src/lib/ascii-roles.ts) and [HeroRoleCycler.astro](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/src/components/HeroRoleCycler.astro): the shared block-letter treatment and static hero presentation.
 
-1. **Plan:** review the phase goal, affected behavior, public surface, and acceptance criteria. Resolve material design questions here before implementation.
-2. **Implement:** make the smallest changes that satisfy that phase. Preserve the reference experience.
-3. **Review:** demonstrate behavior, explain decisions, run the relevant checks, and record evidence and any deliberate differences here.
-4. The maintainer reviews the result before the following phase begins. A phase is complete only when its criteria are met and that review is recorded.
+### Behavior to preserve
 
-The current task authorizes repository initialization and documentation only. Implementation begins in a subsequent task after the foundation review.
+**Contact:** detached Canvas 2D surfaces sample SVG opacity into block characters. A shared miniature alphabet produces the label. Prepared frames are cached and displayed in one preformatted DOM element.
 
-The maintainer intends to understand and implement the library independently; mentoring, conceptual guidance, and review should support that goal. Do not infer permission to generate library code from this roadmap.
+- Frame: 38 columns × 17 rows, comprising 12 icon rows, two blank rows, two label rows, and one final blank row.
+- Sampling: 8 × 8 samples per icon cell; alpha thresholds 0.62, 0.36, 0.16, and 0.04.
+- Morph: 320 ms, using elapsed time and requestAnimationFrame; a diagonal wave keeps old characters, inserts random shimmer, then reveals the target. Its threshold weights are 65% horizontal and 35% vertical position.
+- Playback: advance every 3,400 ms; hover pauses, leaving restarts, and clicking advances and restarts the interval even while hovered.
+- Interruption starts from the current visible frame. Completion assigns the exact target; startup shows the first item immediately.
+- Reduced motion shows a settled frame and disables autoplay. Hiding the tab cancels animation and cycling; returning restarts cycling without explicitly settling a partial frame.
+- Preserve the glyph palette, color, system monospace stack, glow, hover enlargement, and responsive sizing in the reference environment.
 
-Update this document instead of creating competing plans. The README is a concise public introduction, not a second roadmap. No dates or version numbers imply a delivery commitment.
+**Hero:** the current role is a static, server-rendered “Full Stack Engineer” frame, despite the component's retained Cycler name. It uses a 76 × 3 frame, a blank optical row, and two block-letter rows. Oversized text raises an error. Preserve its sizing, color, glow, accessible plain-text equivalent, and host entrance treatment. Optional role cycling is a new capability.
 
-## Source review
+### Extraction concerns
 
-### Evidence and boundaries
+- The alphabet is duplicated; unsupported characters currently become spaces.
+- Contact has fixed IDs, global lookups, no explicit teardown, and continues cycling offscreen.
+- Per-frame arrays and strings are allocated; no runtime performance benchmark has been performed.
+- The clickable contact element lacks keyboard-equivalent interaction.
+- SVG inputs assume roughly 24-unit silhouettes. Opaque photographs need brightness sampling, not opacity alone.
+- System font differences affect glyph appearance.
 
-Reviewed the portfolio's clean local main checkout at commit [cb8d321297700866709cedb96fc1e8df362e8212](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/commit/cb8d321297700866709cedb96fc1e8df362e8212). These pinned sources are the reference:
+Preserve reference behavior first. Review intentional fixes to hover, interruption, or visibility behavior before changing them. The separate background dots and surrounding portfolio layout remain host/demo content.
 
-- [Contact.astro](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/src/sections/Contact.astro): assets, image and label generation, animation, interaction, styling.
-- [ascii-roles.ts](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/src/lib/ascii-roles.ts): pure role-text frame generation.
-- [HeroRoleCycler.astro](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/src/components/HeroRoleCycler.astro): hero presentation and accessible equivalent.
-- [HeroDotMatrix.astro](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/src/components/HeroDotMatrix.astro): separate decorative background.
-- [global.css](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/src/styles/global.css): system font stacks and host theme.
-- [package.json](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/blob/cb8d321297700866709cedb96fc1e8df362e8212/package.json): Astro and Tailwind application dependencies.
+## Architecture
 
-This is a source audit, not a runtime benchmark. No measured frame rate, memory footprint, or bundle size is claimed. Do not assume a screenshot proves animation behavior or that the live deployment is identical without checking it.
+**Text/image nodes → prepared glyph frames → shared transition → scoped DOM presentation**
 
-### Contact: image and label generation, step by step
+Nodes are ordinary content data. A text node contains text and presentation; an image node initially contains an SVG silhouette and presentation. Simple placement, alignment, and spacing support text-only, image-only, and image-with-label compositions. A display instance owns its DOM, playback state, and cleanup.
 
-1. **Describe the content.** A list contains 25 technology items. Each has an identifier, uppercase name, color, SVG path, and occasionally a scale adjustment. These are paths for silhouettes, not arbitrary photographs or HTML.
-2. **Find the visible bounds.** A detached 240 × 240 Canvas 2D surface draws each path through Path2D. Scanning alpha values identifies its bounding rectangle. Alpha measures pixel opacity.
-3. **Render a larger sample.** A second detached canvas is 304 × 96 pixels: 38 columns × 12 icon rows, with 8 samples in each dimension per character cell. A character-aspect adjustment compensates for tall, narrow monospace glyphs.
-4. **Choose block characters.** Average opacity over each 8 × 8 sample becomes a full block, one of three shaded blocks, or a space. The exact alpha thresholds are 0.62, 0.36, 0.16, and 0.04. This forms 12 rows of icon text.
-5. **Build the label.** A small hand-authored alphabet turns the name into two rows of Unicode blocks and centers them. It supports A–Z, digits, spaces, and limited punctuation. Unknown characters currently become spaces.
-6. **Compose a frame.** Twelve icon rows, two blank separator rows, two label rows, and one final blank row produce a 38 × 17 frame: 646 character positions.
-7. **Cache the results.** All 25 target frames are generated at startup and reused.
-8. **Show the frame.** One preformatted DOM text element displays it. CSS supplies the system monospace font, strong weight, color, ambient blur, drop shadow, and hover enlargement.
+- Use native browser APIs with zero runtime or framework peer dependencies.
+- Compile TypeScript to ES modules and declarations; distribute CSS separately. Development-only build/test tools are allowed.
+- Keep text-frame preparation pure and server-friendly. Browser modules must import safely during SSR and use browser APIs only on mount.
+- Prefer a plain DOM mounting function. Framework examples should use normal mount/cleanup hooks.
+- Keep presets optional and verify third-party asset provenance before distributing them.
+- Retain host semantics and meaningful text alternatives; shimmer should not be announced repeatedly.
+- Defer custom elements, framework wrappers, rendering-engine changes, and general scene graphs until justified by actual use.
 
-These are detached HTML canvases used on the main thread. They are not workers and do not use the OffscreenCanvas API.
+### API candidates
 
-### Contact: animation and interaction
+Finalize these during Phase 2; they are not existing exports.
 
-A frame is the complete character grid at a given moment. A transition replaces characters at fixed grid positions; characters do not travel across the screen.
-
-- requestAnimationFrame calls a rendering function around the browser's display refresh.
-- Elapsed time becomes progress over a 320 ms transition.
-- Each cell has a precomputed threshold: 65% horizontal position plus 35% vertical position.
-- Cells ahead of the wave keep their old character. Cells in its band display random block/symbol characters. Cells behind it show the target character.
-- Each animation frame replaces the preformatted element's textContent. At completion, the exact target string is assigned.
-- A new transition cancels the preceding frame request and starts from the currently displayed string.
-- A 3,400 ms interval advances through items. Hover stops cycling; leaving restarts it. Clicking advances and restarts the interval, including while hovered.
-- Reduced motion assigns a settled frame and disables automatic cycling. A preference change is handled.
-- Hiding the browser tab stops the timer and cancels the current animation. Returning restarts the timer; the source does not explicitly settle or resume an interrupted transition.
-- Startup displays the first item without an old-to-new morph because the current frame is initially empty.
-
-Preserve these baseline behaviors during extraction. Oddities such as restarting on click while hovered, the final assignment at the far edge of the wave, and a partially drawn frame after visibility changes must not be silently redesigned. Any correction belongs to a reviewed compatibility decision.
-
-### Hero: text generation, step by step
-
-The current main branch intentionally renders a **static** Full Stack Engineer role. Despite its retained filename, HeroRoleCycler has no JavaScript role-cycling loop.
-
-1. ascii-roles.ts uppercases the role and looks up two block-glyph rows per character.
-2. It joins glyphs with spaces and pads to a 76-column frame.
-3. A blank optical row plus the two lettering rows make a 76 × 3 frame.
-4. An oversized role raises an error instead of silently overflowing.
-5. Astro renders the frame into HTML on the server. The visual pre is hidden from assistive technology; a plain-text Full Stack Engineer equivalent is provided.
-6. CSS uses container-relative sizing, the host accent color, the same monospace stack, and a glow. The surrounding component also has the host's entrance-animation classes.
-
-The miniature alphabet duplicates the Contact alphabet by convention. A shared implementation can eliminate that duplication. Optional cycling between text frames would be a new library capability, not an existing hero behavior to claim or enable automatically.
-
-### Strengths, limitations, and extraction boundary
-
-**Keep:** recognizable block treatment, original alphabet and sampling thresholds, static server-rendered hero, distinct alignment and sizing in both uses, caching, time-based contact progress, reduced-motion behavior, and useful host styling.
-
-**Improve carefully:**
-
-- Contact combines assets, DOM access, sampling, scheduling, and CSS in one component.
-- Fixed IDs and global lookups assume one instance.
-- Explicit teardown is absent.
-- The contact effect keeps cycling when scrolled out of view.
-- Its zero-allocation comment is incorrect: each frame creates arrays and strings.
-- CSS compositing hints do not make JavaScript text generation a GPU particle simulation.
-- The clickable contact div has no keyboard equivalent.
-- The contact pre is empty before its script runs; the hero already has a useful static HTML fallback.
-- Contact's input assumes roughly 24-unit SVG paths; arbitrary SVG documents require a separate contract.
-- Raster photographs need brightness sampling; alpha-only sampling makes opaque content a solid shape.
-- The existing alphabet is not a general Unicode font. Font and browser differences affect glyph metrics.
-
-The sparse background dots are a different Canvas 2D system. Their pointer displacement, visibility observer, and idle settling are useful references, but the background remains host/demo content, outside the first library release. Portfolio copy, contact details, layouts, social links, and unrelated site code are not package assets.
-
-## Architecture and API discussion
-
-### Chosen direction
-
-**Content nodes → prepared glyph frames → one shared transition → scoped DOM presentation**
-
-- A **text node** describes text and its presentation.
-- An **image node** initially describes an SVG silhouette and its presentation.
-- A **frame** is the prepared rectangular character grid with dimensions and display metadata.
-- A **display instance** owns its DOM, playback state, timers, frame request, and cleanup.
-
-Keep nodes as ordinary data, not one DOM element or class per visible block. Compose a text node alone, an image alone, or an image with a label using simple alignment and spacing. Do not introduce a recursive scene graph, constraint solver, or arbitrary HTML renderer.
-
-The first release targets block text and SVG-path image nodes. Multiple lines and supported-character validation belong to reusable text handling. Additional image formats and native-font text are explicitly scheduled future extensions.
-
-### Alternatives considered
-
-- **Plain DOM mounting function — preferred.** A small framework-independent API can be mounted and destroyed through any framework's lifecycle.
-- **Custom element — deferred.** Useful native lifecycle hooks, but registration, styling, and rich property handling add choices without solving a current integration problem.
-- **Framework wrappers — deferred.** Short usage examples can establish actual need before adding adapter packages or peer dependencies.
-- **Canvas/WebGL replacement — declined for this extraction.** It changes rendering and fidelity without evidence of a bottleneck.
-- **General node layout engine — declined.** The two reference uses only require text and an image/label composition.
-
-### Proposed public surface, to finalize in Phase 2
-
-These are design candidates, not existing exports or copy-paste usage examples.
-
-- Mount a display into a caller-owned container with a sequence of node compositions.
-- Configure columns/rows per instance, alignment/spacing, transition duration, cycle interval, autoplay, hover pause, and click advance.
-- Retain contact-compatible defaults: 38 × 17, 320 ms, 3,400 ms. Provide the hero's 76 × 3 static presentation as a separate configuration.
-- Return a small controller: show, next, play, pause, destroy.
-- Expose a pure text-frame preparation helper for static/SSR use so the hero need not load an animation runtime.
-- Use prefixed CSS variables for color, font size, font family, and glow. Preserve baseline appearance through configurations rather than portfolio-specific variable names.
-- Keep original technology data as an optional preset export after attribution review.
-- Define invalid dimensions, unsupported glyphs, oversized text, invalid paths, empty sequences, and out-of-range selections explicitly.
-
-Do not add an update method, event bus, plugin API, or many renderer options until a supported use case requires them.
-
-### Framework and build approach
-
-Use TypeScript source compiled into standard ES modules and type declarations, plus separately distributed CSS. A TypeScript compiler and a simple CSS-copy build step should suffice; introduce a bundler only if a concrete packaging requirement justifies it.
-
-Zero dependencies means **zero runtime and framework peer dependencies**. Development-only compiler and test tools are allowed.
-
-The pure text module must import and execute without window, document, Canvas, or a framework. The browser-facing module must be safe to import during SSR and access browser facilities only on mount. Images requiring Canvas are prepared in the browser; no server Canvas dependency is planned.
-
-Provide plain-browser ESM and Astro usage, plus small lifecycle examples for React, Vue, and Svelte. Test each claimed integration before documenting it as supported. Reserve CommonJS and prebundled CDN globals for demonstrated consumer demand.
-
-Typography is decorative output. Keep semantic heading/paragraph context under host control, provide meaningful accessible equivalents, and avoid announcing every shimmer or automatic change.
-
-## Performance and compatibility
-
-Retain the current prepared-frame cache and threshold calculation. Measure before changing sampling, frame scheduling, or appearance.
-
-Worthwhile initial improvements:
-
-- Per-instance state and references; no fixed IDs or global event ownership.
-- Idempotent destruction and cancellation of pending work.
-- Shared alphabet and reusable, bounded frame data.
-- Reuse straightforward temporary buffers; do not promise allocation-free strings.
-- No animation loop for settled static content.
-- An explicit policy for hidden tabs, offscreen instances, hover, manual pause, and reduced motion, with differences from the reference reviewed.
-- Isolated CSS that works without Astro or Tailwind.
-
-Measure startup preparation time, transition frame work and dropped frames, idle/offscreen activity, repeated mount/destroy behavior, and packed JS/CSS size. Record device, browser, resolution, fixture, and measurement method. A 60 Hz display offers about 16.7 ms for the whole frame; that is a budget, not a guaranteed benchmark.
-
-Use controlled clocks and randomness in development verification to compare transition states; production shimmer remains random. Settled frame output should match exactly in the same font/browser environment. Compare contact and hero at desktop and narrow widths, with reduced motion, theme changes, rapid interruption, and multiple instances.
-
-Candidate optimization results must include before/after evidence and retain accepted visual behavior. Do not introduce workers, OffscreenCanvas, GPU rendering, object pools, or global caches speculatively.
+- Mount into a caller-owned container with a sequence of node compositions.
+- Configure dimensions, alignment, spacing, transition duration, cycle interval, autoplay, hover pause, and click advance.
+- Return show, next, play, pause, and destroy controls.
+- Provide pure text-frame preparation for the static hero.
+- Expose prefixed CSS variables for font, size, color, and glow.
+- Define unsupported characters, overflow, invalid paths/dimensions, empty sequences, and invalid selections explicitly.
 
 ## Development phases
 
-### Phase 0 — Repository foundation
-
-**Goal:** establish an honest public project and reviewable plan.
-
-**Scope:** metadata, license, repository hygiene, source audit, architectural options, and roadmap only.
-
-**Tasks**
-
-- Initialize a main-branch Git repository in the maintainer's existing npm-package workspace.
-- Create the public Kashif-Rezwi/nanodes GitHub repository with a concise description and relevant topics.
-- Add README, this roadmap, contribution guidance, MIT license, ignore rules, editor settings, and a metadata-only package manifest.
-- Keep the manifest private and omit implementation exports, build scripts, source files, and installed dependencies.
-
-**Complete when:** local and public repositories contain the reviewed foundation, relative links and metadata are valid, and no library implementation or npm release has been created.
-
-**Status:** complete for the repository foundation. Implementation phases remain unstarted and await the maintainer's foundation review.
+All phases below are not started.
 
 ### Phase 1 — Faithful extraction
 
-**Goal:** reproduce the portfolio's two reference displays outside Astro.
-
-**Scope:** existing SVG silhouettes, shared mini alphabet, original composition, styling, and transition logic. No new visual design or broader image formats.
+**Goal and scope:** reproduce the existing contact animation and static hero outside Astro, using their current visual treatment.
 
 **Tasks**
 
-- Confirm the pinned source and capture same-environment visual/behavior references.
-- Introduce the minimal TypeScript/ESM build and development-only verification tools.
-- Extract one shared alphabet and the pure static text-frame helper.
-- Extract SVG bounds/supersampling conversion, frame composition, contact morph, and scoped CSS.
-- Build small local fixtures for all 25 contact entries and the static hero.
-- Check provenance before redistributing brand icons; use first-party synthetic fixtures if a preset's permissions are unresolved.
-- Record intentional host dependencies such as theme variables and entrance classes.
+- Capture same-environment visual and behavior references from the pinned source.
+- Add the minimal TypeScript/ESM build and appropriate development verification tools.
+- Extract one alphabet, pure text preparation, SVG sampling, frame composition, transition, and scoped CSS.
+- Create small fixtures for contact entries and the hero; document host theme/entrance dependencies.
+- Verify asset provenance before redistributing the original icons.
 
-**Complete when:** settled frames and layout match the reference; contact timing, interruption, shimmer, color, glow, and interaction are reproduced; the hero remains statically renderable; no Astro/Tailwind runtime is required.
+**Complete when:** settled frames and layout match; timing, shimmer, interruption, color, glow, and interactions are reproduced; the hero remains statically renderable; no Astro/Tailwind runtime is required. Review how text and SVG preparation feed the shared transition.
 
-**Review checkpoint:** explain how source content becomes a grid, why text and SVG need different preparation, and why the transition itself can be shared.
+### Phase 2 — Reusable nodes and API
 
-**Status:** not started.
-
-### Phase 2 — Reusable nodes and public API
-
-**Goal:** turn the extraction into a small, configurable library.
-
-**Scope:** text and SVG-path image nodes, simple composition, instance lifecycle, and the public interface.
+**Goal and scope:** support configurable text and SVG-path image displays through a small public API.
 
 **Tasks**
 
-- Finalize node data, frame dimensions, mount options, controller methods, and error policy here.
-- Add per-instance state and remove global IDs.
-- Support text-only, image-only, and image-with-label sequences; configure width, alignment, spacing, and line breaks.
-- Handle supported-character wrapping/overflow explicitly without silently dropping user content.
-- Add optional text cycling without enabling it in the existing static hero.
-- Preserve the original defaults while providing independently configurable hero/contact presentations.
-- Separate pure text preparation from browser mounting; namespace CSS and keep presets optional.
-- Document ownership of host containers, accessible text, and destroy/re-mount behavior.
+- Finalize node data, composition, options, controller methods, and error handling.
+- Remove global IDs; add independent instance state and explicit cleanup.
+- Support alignment, spacing, line breaks, and supported-character wrapping/overflow.
+- Add optional text cycling while retaining the static hero default.
+- Separate pure text preparation from browser mounting; namespace CSS and optional presets.
 
-**Complete when:** two differently configured instances operate independently, the same transition handles both node types, static imports work in Node/SSR, errors are understandable, and the public surface is small enough to explain in one example.
+**Complete when:** two differently configured instances operate independently; one transition handles both node types; static helpers work during SSR; invalid content fails clearly; both portfolio uses fit the API without special-case machinery.
 
-**Review checkpoint:** demonstrate the two portfolio uses with the same library and explain each public option's need.
+### Phase 3 — Measured hardening and testing
 
-**Status:** not started.
-
-### Phase 3 — Measured hardening and compatibility
-
-**Goal:** make the library reliable without sacrificing visual fidelity.
-
-**Scope:** focused performance improvements, lifecycle, accessibility, and meaningful regression coverage.
+**Goal and scope:** improve reliability, accessibility, and demonstrated performance costs while retaining visual fidelity.
 
 **Tasks**
 
-- Establish baseline measurements before optimizing.
-- Reduce only demonstrated redundant preparation or temporary allocation.
-- Resolve timer/animation ownership, interrupted transitions, reduced motion, and visibility/resume rules.
-- Add keyboard-equivalent interaction and useful text alternatives without live-announcing shimmer.
-- Verify cleanup after repeated mounting, destruction, and framework development remounts.
-- Test pure frame preparation, composition boundaries, final transition output, rapid interruption, and invalid inputs.
-- Run browser visual/interaction checks in current Chrome, Firefox, and Safari; record actual support and limitations.
-- Add CI only for real build/type/test checks once those checks exist.
+- Measure preparation, transition frame work, idle/offscreen activity, repeated mount/destroy behavior, and packed size before optimizing.
+- Reuse cached frames and simple buffers; avoid speculative workers, GPU rendering, or global caches.
+- Resolve interruption and pause/resume rules for hover, hidden tabs, offscreen displays, manual pause, and reduced motion.
+- Add keyboard equivalents and accessible text alternatives.
+- Test frame preparation, composition boundaries, invalid inputs, final frames, interruption, and cleanup.
+- Compare desktop/narrow layouts and behavior in Chrome, Firefox, and Safari; add CI for checks that exist.
 
-**Complete when:** relevant checks pass, static/settled displays do not run an idle frame loop, destroyed instances retain no owned timers/listeners, visual comparisons pass, and any performance claims have documented evidence.
-
-**Review checkpoint:** explain what each optimization improves, its measurements, and why it does not change the accepted experience.
-
-**Status:** not started.
+**Complete when:** relevant checks and visual comparisons pass; settled content runs no idle animation loop; destruction removes owned timers/listeners; performance claims include before/after evidence and environment details.
 
 ### Phase 4 — Portfolio integration
 
-**Goal:** make the portfolio the first real consumer.
-
-**Scope:** replace the duplicated Contact and hero implementations using a local packed artifact before public npm publication.
+**Goal and scope:** make the portfolio the first consumer using a locally packed artifact.
 
 **Tasks**
 
-- Produce an npm tarball and install it into a separate portfolio feature branch.
-- Replace Contact's embedded logic while retaining content order, styling, and interaction.
-- Replace the hero's duplicated alphabet with the pure helper; keep its role static and server-rendered.
-- Retain the background dots and other page behavior in the portfolio.
-- Verify the production Astro build, responsive layouts, theme behavior, keyboard behavior, reduced motion, and cleanup.
-- Remove duplicated implementation only after parity is established.
-- Record package version/tarball identity and integration evidence here.
+- Install the tarball in a separate portfolio feature branch.
+- Replace Contact's embedded implementation and the hero's duplicated alphabet.
+- Keep the hero static and server-rendered; retain background dots in the portfolio.
+- Verify the production Astro build, responsive appearance, theme behavior, interaction, and reduced motion.
+- Remove duplication after parity is reviewed; record the artifact identity and integration results.
 
-**Complete when:** the portfolio feature branch uses one Nanodes package for both displays, parity is reviewed, and the previous duplication is removed. Production deployment is a separate maintainer decision.
+**Complete when:** both displays use Nanodes and match their accepted reference behavior. Production deployment remains a separate decision.
 
-**Review checkpoint:** demonstrate the package from a consumer's perspective and identify any awkward API requirements exposed by real use.
+### Phase 5 — npm release
 
-**Status:** not started.
-
-### Phase 5 — npm release preparation and publication
-
-**Goal:** publish a small, correctly packaged, documented release after real integration.
-
-**Scope:** distribution, consumer documentation, asset notices, and release verification.
+**Goal and scope:** publish a verified, documented package after real integration.
 
 **Tasks**
 
-- Recheck the npm name's availability; use a maintainer-owned scope if needed. The GitHub name does not reserve the npm name.
-- Finalize ESM, type, CSS, and optional preset exports; allowlist publication contents.
-- Confirm the license and any third-party asset notices.
-- Complete README installation/API/styling/error/compatibility guidance using implemented behavior only.
-- Test the actual tarball in clean plain-browser and Astro consumers; verify the documented React/Vue/Svelte lifecycle examples.
-- Inspect npm pack --dry-run and the produced archive; check runtime and peer dependency counts and package size.
-- Choose a deliberate initial release version, add release notes, and remove private only as part of publication preparation.
-- Configure the supported npm authentication or trusted-publishing flow at release time.
-- Publish only in a separately authorized release task, then verify installation from the registry and tag the matching commit.
+- Confirm npm name availability, using a maintainer-owned scope if necessary.
+- Finalize ESM, declaration, CSS, and optional preset exports; allowlist distributed files.
+- Complete installation/API/styling/compatibility documentation and required asset notices.
+- Inspect npm pack --dry-run and install the actual tarball in clean browser/Astro consumers.
+- Verify documented React, Vue, and Svelte lifecycle examples before claiming support.
+- Choose a release version, record release notes, and remove private only during release preparation.
+- Configure npm authentication, publish in an authorized release task, verify registry installation, and tag the matching commit.
 
-**Complete when:** the registry package installs successfully, distributed entry points/CSS/types work, README examples match the release, no unintended files ship, and the portfolio can consume the published version.
+**Complete when:** consumers can install the registry release with working exports, types, and CSS; documentation matches; no unintended files or runtime dependencies ship; the portfolio can use that version.
 
-**Review checkpoint:** explain what consumers download, the browser/SSR boundary, and how a release can be traced to its source commit.
+## Later scope
 
-**Status:** not started.
-
-## Future extensions
-
-These require a separate scope decision after the baseline package is proven:
-
-- Raster image sources such as PNG/JPEG, using alpha and/or luminance with explicit loading, CORS, and error behavior.
-- Native-font text sampling for character coverage beyond the block alphabet, with font readiness and readable output requirements.
-- Further composition or custom glyph sets driven by consumer needs.
-- A custom element or framework wrapper only if repeated integration friction justifies it.
-
-Arbitrary Unicode support, photographic fidelity, arbitrary HTML conversion, editable form controls, AI-generated interfaces, 3D graphics, and moving particle swarms are not first-release promises.
-
-## Decision record and references
-
-### Foundation decisions — 2026-11-18
-
-- Nanodes is the official project name; npm registration remains unverified.
-- Preserve and extract the glyph-grid experience; keep the future Nanites particle project separate.
-- Use text/image content nodes and a shared frame transition without a general scene graph.
-- Prefer native DOM/CSS/Canvas APIs, TypeScript-to-ESM output, isolated CSS, and zero runtime/peer dependencies.
-- Keep the static hero static by default and retain a server-friendly text preparation path.
-- Choose MIT for Nanodes-owned work; verify third-party assets before distributing them.
-- Keep this document canonical and use Plan → Implement → Review for each phase.
-- Ship the first useful release around existing block text and SVG silhouettes; decide broader image/text conversion separately.
-
-### Verification record
-
-Foundation verification, 2026-11-18:
-
-- Public repository: https://github.com/Kashif-Rezwi/nanodes, default branch main.
-- Local package workspace: the maintainer's existing Developer/npm packages/nanodes directory.
-- The package manifest is valid JSON, has private set to true, and declares no runtime, peer, or development dependencies.
-- Relative documentation links and the documentation-only file inventory were checked.
-- No library source, installed dependencies, build artifacts, or npm release were created.
-- Source analysis is pinned to the portfolio commit above; no runtime performance benchmark has been performed.
-
-Review of the roadmap and the Phase 1 plan is the next step. Runtime and performance evidence belongs to later phases.
-
-### External references
-
-References explain platform/tool behavior; they do not establish implemented Nanodes capabilities.
-
-- [Canvas text drawing](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_text)
-- [Canvas image sampling and CORS](https://developer.mozilla.org/en-US/docs/Web/HTML/How_to/CORS_enabled_image)
-- [Custom element lifecycle](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)
-- [TypeScript module reference](https://www.typescriptlang.org/docs/handbook/modules/reference.html)
-- [npm package contents and exports](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/)
-- [npm pack](https://docs.npmjs.com/cli/v11/commands/npm-pack/)
-- [Publishing a scoped public package](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/)
-- [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/)
+PNG/JPEG sampling, native-font text for wider character coverage, custom glyph sets, and richer composition remain possible extensions. Decide them separately after the original block-text/SVG experience is proven. Nanodes remains distinct from the future Nanites particle project.

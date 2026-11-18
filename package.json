@@ -22,5 +22,14 @@
     "typography",
     "svg",
     "framework-agnostic"
-  ]
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "dev": "npm run build && node scripts/serve.mjs",
+    "reference": "node scripts/reference.mjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
 }

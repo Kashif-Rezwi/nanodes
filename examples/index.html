@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nanodes · Playground</title>
+  <link rel="stylesheet" href="/dist/styles.css">
+  <link rel="stylesheet" href="/examples/page.css">
+</head>
+<body>
+<main>
+  <header><a class="wordmark" href="/">Nanodes<span aria-hidden="true">.</span></a><span>Playground</span></header>
+  <div class="intro"><h1>Give your content a little motion.</h1><p>Block-glyph text and SVG shapes, with the original shimmer.</p></div>
+  <div class="playground">
+    <form id="controls" aria-label="Display controls">
+      <label for="content">Content</label>
+      <select id="content"><option value="text">Text</option><option value="image">SVG images</option></select>
+      <div id="text-fields">
+        <label for="text">Text <span>one item per line</span></label>
+        <textarea id="text" rows="4" spellcheck="false" aria-describedby="text-hint error">FULL STACK ENGINEER
+FRONTEND ENGINEER
+CREATIVE DEVELOPER</textarea>
+        <p class="hint" id="text-hint">A–Z, numbers, spaces, . - /</p>
+      </div>
+      <div id="image-fields" hidden>
+        <label for="shape">Shapes</label>
+        <select id="shape"><option value="all">All three shapes</option><option value="blocks">Blocks</option><option value="orbit">Orbit</option><option value="signal">Signal</option></select>
+        <p class="hint">Original SVG samples with block labels.</p>
+      </div>
+      <div class="options">
+        <div><label for="playback">Playback</label><select id="playback"><option value="static">Static</option><option value="cycle">Cycle items</option></select></div>
+        <div><label for="transition">Transition</label><select id="transition"><option value="shimmer">Shimmer</option><option value="none">Instant</option></select></div>
+      </div>
+      <p id="error" role="alert" hidden></p>
+      <button type="submit">Apply changes <span aria-hidden="true">↗</span></button>
+    </form>
+    <section class="preview" aria-label="Display preview">
+      <div class="preview-top"><span>LIVE PREVIEW</span><span id="summary"></span></div>
+      <div class="stage"><div id="display"></div></div>
+      <div class="preview-bottom"><p id="hint">Static until you advance.</p><button id="next" type="button">Next item <span aria-hidden="true">→</span></button></div>
+    </section>
+  </div>
+  <footer><span>Made of glyphs. Built for the web.</span><a href="/tests/browser.html">Source comparison <span aria-hidden="true">↗</span></a></footer>
+</main>
+<script type="module" src="/examples/playground.js"></script>
+</body>
+</html>

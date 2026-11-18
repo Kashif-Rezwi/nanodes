@@ -1,0 +1,104 @@
+.nanodes-image {
+  --nanodes-color: #F7DF1E;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  padding: 1.5rem 1rem;
+  min-height: 280px;
+  contain: layout paint;
+}
+
+.nanodes-ambient-glow {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--nanodes-color) 25%, transparent), transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+  transform: translateZ(0);
+  transition: background 0.35s ease;
+}
+
+.nanodes-visual-wrapper {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--nanodes-color) 45%, transparent));
+  transition: transform 0.18s cubic-bezier(0.2, 0, 0, 1), filter 0.3s ease;
+}
+
+.nanodes-image:hover .nanodes-visual-wrapper {
+  transform: scale(1.035) translateZ(0);
+}
+
+.nanodes-art {
+  margin: 0;
+  font-family: var(--nanodes-font-mono, ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(0.58rem, 2.5vw, 0.92rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  color: var(--nanodes-color);
+  text-align: left;
+  white-space: pre;
+  user-select: none;
+  width: calc(var(--nanodes-columns, 38) * 1ch);
+  max-width: 100%;
+  height: calc(var(--nanodes-rows, 17) * 1.05em);
+  display: block;
+  overflow: hidden;
+  box-sizing: content-box;
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+
+.nanodes-text {
+  position: relative;
+  margin: 0.85rem 0 0;
+  user-select: none;
+  container-type: inline-size;
+}
+
+.nanodes-text-art {
+  margin: 0;
+  font-family: var(--nanodes-font-mono, ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(0.42rem, 1.1vw, 0.95rem); /* fallback where cqw is unsupported */
+  font-size: min(0.95rem, 2.1cqw); /* 76ch ≈ 45.6em ⇒ 100/45.6 ≈ 2.19cqw fills the container */
+  line-height: 1.05;
+  letter-spacing: 0;
+  font-weight: 900;
+  color: var(--nanodes-color, var(--nanodes-accent-text, #a9c8ff));
+  text-align: left;
+  white-space: pre;
+  user-select: none;
+  width: calc(var(--nanodes-columns, 76) * 1ch);
+  max-width: 100%;
+  height: calc(var(--nanodes-rows, 3) * 1.05em);
+  display: block;
+  overflow: hidden;
+  box-sizing: content-box;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--nanodes-accent, #6495ed) 32%, transparent));
+}
+
+.nanodes-display[role="button"] { cursor: pointer; }
+.nanodes-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.nanodes-display:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+@media (max-width: 480px) {
+  .nanodes-image { padding: 0.75rem 0.25rem; min-height: 240px; }
+}

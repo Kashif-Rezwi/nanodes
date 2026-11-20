@@ -5,7 +5,13 @@ import { resolve, extname, sep } from 'node:path';
 const root = resolve('.');
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.png': 'image/png' };
 createServer(async (request, response) => {
-  const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
+  } catch {
+    response.writeHead(400).end('Bad request');
+    return;
+  }
   const file = resolve(root, '.' + (pathname === '/' ? '/dist/example.html' : pathname));
   if (!file.startsWith(root + sep)) { response.writeHead(403).end(); return; }
   try {

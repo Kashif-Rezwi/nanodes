@@ -34,7 +34,11 @@ export function CodeBlock({
   label: string;
 }) {
   return (
-    <div className={`code-window code-window-${language}`}>
+    <div
+      className={
+        language === "shell" ? "code-window code-window-shell" : "code-window"
+      }
+    >
       <div className="code-window-top">
         <span className="code-window-title">
           <span className="code-file-type" aria-hidden="true">

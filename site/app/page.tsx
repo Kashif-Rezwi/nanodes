@@ -98,7 +98,7 @@ export default function Home() {
           <Playground />
         </section>
         <section
-          className="section container how-section"
+          className="section container"
           id="how-it-works"
           aria-labelledby="how-title"
         >

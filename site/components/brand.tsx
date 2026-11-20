@@ -1,48 +1,15 @@
-"use client";
+import { prepareFrames } from "nanodes";
 
-import { useEffect, useRef, useState } from "react";
-import { mountDisplay, prepareFrames, type DisplayController } from "nanodes";
-import { shapes } from "@/lib/content";
-
-const brandShape = shapes[2];
 const wordmark = prepareFrames(
-  [
-    {
-      label: "Nanodes",
-      color: brandShape.color,
-      nodes: [{ type: "text", text: "NANODES" }],
-    },
-  ],
+  [{ label: "Nanodes", nodes: [{ type: "text", text: "NANODES" }] }],
   { columns: 29 },
-);
+)[0].ascii;
 
 export function Brand() {
-  const textHost = useRef<HTMLDivElement>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (!textHost.current) return;
-    let display: DisplayController;
-    try {
-      display = mountDisplay(textHost.current, wordmark, {
-        variant: "text",
-        autoplay: false,
-        advanceOnClick: false,
-      });
-      setReady(true);
-    } catch {
-      return;
-    }
-    return () => display.destroy();
-  }, []);
-
   return (
     <a className="brand" href="#top" aria-label="Nanodes home">
-      <div className="brand-wordmark" aria-hidden="true">
-        <div ref={textHost} />
-        {!ready && (
-          <pre className="brand-wordmark-fallback">{wordmark[0].ascii}</pre>
-        )}
+      <div className="brand-wordmark nanodes-text" aria-hidden="true">
+        <pre className="nanodes-text-art">{wordmark}</pre>
       </div>
     </a>
   );

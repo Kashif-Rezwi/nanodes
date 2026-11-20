@@ -6,7 +6,6 @@
   --surface-raised: #222936;
   --text: #e4e9f3;
   --muted: #a5adbe;
-  --subtle: #777d8c;
   --line: #343c4b;
   --accent: #a8c2ff;
   --brand: #c5baff;
@@ -489,31 +488,23 @@ pre {
 }
 .brand {
   --nanodes-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --nanodes-accent: #c5baff;
+  --nanodes-accent: var(--brand);
+  --nanodes-color: var(--brand);
   --nanodes-glow-radius: 3px;
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 12px;
   min-height: 44px;
 }
 .brand-wordmark {
   --nanodes-font-size: 8px;
+  --nanodes-columns: 29;
+  --nanodes-rows: 2;
+  margin: 0;
   position: relative;
   display: block;
   width: 144px;
   height: 18px;
-}
-.brand-wordmark .nanodes-text {
-  margin: 0;
-}
-.brand-wordmark-fallback {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  color: var(--nanodes-accent);
-  font: 900 8px/1.05 var(--nanodes-font-mono);
-  white-space: pre;
 }
 .hero-specimen {
   min-width: 0;
@@ -554,13 +545,22 @@ pre {
   line-height: 1.05;
 }
 .glyph-hero {
+  position: relative;
   --nanodes-font-size: 1.25rem;
 }
 .glyph-hero .glyph-surface {
   min-height: 335px;
   padding: 20px 28px 12px;
-  background-image: none;
   cursor: pointer;
+}
+.glyph-pause {
+  position: absolute;
+  right: 24px;
+  bottom: 0;
+  color: var(--muted);
+}
+.glyph-pause:hover {
+  color: var(--accent);
 }
 .glyph-hero .nanodes-image {
   contain: layout;
@@ -590,11 +590,13 @@ pre {
   border-radius: 12px;
 }
 .playground-main {
-  --nanodes-font-size: 1.05rem;
   display: grid;
   align-items: center;
   min-width: 0;
   padding: 24px;
+}
+.playground-main .glyph-renderer {
+  --nanodes-font-size: 1.05rem;
 }
 .playground-main .glyph-surface {
   flex-direction: column;
@@ -746,9 +748,6 @@ pre {
   .brand-wordmark {
     --nanodes-font-size: 7.5px;
     width: 136px;
-  }
-  .brand-wordmark-fallback {
-    font-size: 7.5px;
   }
   .hero {
     padding-top: 48px;

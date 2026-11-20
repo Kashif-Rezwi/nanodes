@@ -74,7 +74,7 @@ Options retain the original defaults:
 - `duration` and `interval` — milliseconds, defaults 320 and 3400. Zero duration swaps glyphs immediately; the interval must be positive.
 - `pauseOnHover` and `advanceOnClick` — default true. Disabling click advance also removes button semantics; programmatic selection still works.
 
-The controller provides `next()`, `show(index)`, `play()`, `pause()`, and `destroy()`. Manual pause stops cycling and lets an active morph finish; it persists across manual advance, hover, visibility, and motion changes. Play requests cycling but still respects reduced motion and hidden tabs. The default click/selection behavior restarts the cycle interval even while hovered, matching the source. Hiding the tab cancels active work and retains the partial frame until another selection. Destroy is idempotent and all later controls are inert. Frames and options are snapshotted on mount; remount to replace the content or configuration.
+The controller provides `next()`, `show(index)`, `play()`, `pause()`, `setTransition(transition)`, and `destroy()`. Changing the transition preserves the selected frame and playback timer; choosing `none` also settles an active morph immediately. Manual pause stops cycling and lets an active morph finish; it persists across manual advance, hover, visibility, and motion changes. Play requests cycling but still respects reduced motion and hidden tabs. The default click/selection behavior restarts the cycle interval even while hovered, matching the source. Hiding the tab cancels active work and retains the partial frame until another selection. Destroy is idempotent and all later controls are inert. Frames and initial options are snapshotted on mount. Use the controller for playback and transition changes; remount to replace content or other configuration.
 
 ## Styling and errors
 
@@ -92,7 +92,7 @@ npm ci --prefix site
 npm run site:dev
 ```
 
-Open [the website](http://127.0.0.1:3000). `npm run site:check` checks site types and `npm run site:build` generates a static export in `site/out/`. These commands build the library first. The original standalone playground remains available through `npm run dev`.
+Open [the website](http://127.0.0.1:3000). `npm run site:check` checks site types and `npm run site:build` generates a static export in `site/out/`. These commands build the library first, updating `dist/` in place so checks can run while the website preview is open. The original standalone playground remains available through `npm run dev`.
 
 Before deploying the export, set `SITE_URL` to the real public origin so social image URLs use the production domain. The local default is `http://localhost:3000`. The site uses Space Grotesk and DM Sans from Fontsource's OFL-licensed font packages; npm publication of the library is a separate roadmap task.
 

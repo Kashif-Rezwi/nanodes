@@ -46,7 +46,7 @@ const miniFont: Record<string, [string, string]> = {
 };
 
 /** Raw two-row letters, before line placement and frame padding. */
-export function renderTextRows(word: string, spacing = 1): [string, string] {
+function renderTextRows(word: string, spacing: number): [string, string] {
   const glyphs = [...word.toUpperCase()].map(ch => miniFont[ch] ?? [' ', ' ']);
   return [glyphs.map(g => g[0]).join(' '.repeat(spacing)), glyphs.map(g => g[1]).join(' '.repeat(spacing))];
 }

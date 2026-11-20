@@ -59,9 +59,7 @@ export function createSvgSampler(doc: Document, columns = 38) {
 
     return {
       minX: minX / 10,
-      maxX: maxX / 10,
       minY: minY / 10,
-      maxY: maxY / 10,
       w: Math.max(1, (maxX - minX + 1) / 10),
       h: Math.max(1, (maxY - minY + 1) / 10)
     };

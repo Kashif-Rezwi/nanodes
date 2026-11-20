@@ -27,7 +27,7 @@ const fallback = prepareTextFrame("NANODES", { columns: 30, align: "center" });
 
 function content(mode: Mode, text: string, shape: string): GlyphFrame[] {
   const selected =
-    shape === "all" ? [...shapes] : shapes.filter((item) => item.id === shape);
+    shape === "all" ? shapes : shapes.filter((item) => item.id === shape);
   if (mode === "composed") return prepareImageFrames(selected);
   if (mode === "svg")
     return prepareFrames(

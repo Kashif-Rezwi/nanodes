@@ -2,7 +2,6 @@ import { createMorph } from './transition.js';
 import type { GlyphFrame, DisplayOptions, DisplayController } from './types.js';
 import { validateDisplay } from './display-options.js';
 import { choice } from './validation.js';
-export type { GlyphFrame, DisplayOptions, DisplayController } from './types.js';
 
 /** Mount prepared text or image frames into a caller-owned host. */
 export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], options: DisplayOptions = {}): DisplayController {
@@ -26,8 +25,6 @@ export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], op
   const interactive = config.advanceOnClick && frames.length > 1;
   if (interactive) container.tabIndex = 0;
   container.setAttribute('role', interactive ? 'button' : 'img');
-  const glow = doc.createElement('div');
-  glow.className = 'nanodes-ambient-glow';
   const wrapper = doc.createElement('div');
   wrapper.className = variant === 'text' ? 'nanodes-text-wrapper' : 'nanodes-visual-wrapper';
   const display = doc.createElement('pre');
@@ -35,11 +32,13 @@ export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], op
   display.style.setProperty('--nanodes-columns', String(columns));
   display.style.setProperty('--nanodes-rows', String(rows));
   display.setAttribute('aria-hidden', 'true');
-  const equivalent = doc.createElement('span');
-  equivalent.className = 'nanodes-sr-only';
   wrapper.append(display);
-  if (variant === 'image') container.append(glow);
-  container.append(wrapper, equivalent);
+  if (variant === 'image') {
+    const glow = doc.createElement('div');
+    glow.className = 'nanodes-ambient-glow';
+    container.append(glow);
+  }
+  container.append(wrapper);
   host.append(container);
 
   const morph = createMorph(display, columns, rows, reducedMotion, config.duration);
@@ -52,7 +51,6 @@ export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], op
     index = (nextIndex + frames.length) % frames.length;
     const target = frames[index];
     container.style.setProperty('--nanodes-color', target.color);
-    equivalent.textContent = target.label;
     container.setAttribute('aria-label', interactive ? target.label + '. Show next item' : target.label);
     if (immediate || transition === 'none' || config.duration === 0) {
       morph.cancel();

@@ -14,13 +14,19 @@
   <div class="playground">
     <form id="controls" aria-label="Display controls">
       <label for="content">Content</label>
-      <select id="content"><option value="text">Text</option><option value="image">SVG images</option></select>
+      <select id="content"><option value="text">Text</option><option value="image">SVG images</option><option value="combined">Text + SVG</option></select>
       <div id="text-fields">
-        <label for="text">Text <span>one item per line</span></label>
-        <textarea id="text" rows="4" spellcheck="false" aria-describedby="text-hint error">FULL STACK ENGINEER
+        <label for="text">Text <span>blank line between items</span></label>
+        <textarea id="text" rows="5" spellcheck="false" aria-describedby="text-hint error">FULL STACK ENGINEER
+
 FRONTEND ENGINEER
+
 CREATIVE DEVELOPER</textarea>
-        <p class="hint" id="text-hint">A–Z, numbers, spaces, . - /</p>
+        <p class="hint" id="text-hint">A–Z, numbers, spaces, . - / · Line breaks stay inside an item.</p>
+        <details><summary>Text layout</summary>
+          <label for="align">Alignment</label><select id="align"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select>
+          <label class="check" for="wrap"><input id="wrap" type="checkbox">Wrap long text</label>
+        </details>
       </div>
       <div id="image-fields" hidden>
         <label for="shape">Shapes</label>
@@ -37,7 +43,7 @@ CREATIVE DEVELOPER</textarea>
     <section class="preview" aria-label="Display preview">
       <div class="preview-top"><span>LIVE PREVIEW</span><span id="summary"></span></div>
       <div class="stage"><div id="display"></div></div>
-      <div class="preview-bottom"><p id="hint">Static until you advance.</p><button id="next" type="button">Next item <span aria-hidden="true">→</span></button></div>
+      <div class="preview-bottom"><p id="hint">Static until you advance.</p><div class="playback-buttons"><button id="toggle" type="button" hidden>Pause</button><button id="next" type="button">Next item <span aria-hidden="true">→</span></button></div></div>
     </section>
   </div>
   <footer><span>Made of glyphs. Built for the web.</span><a href="/tests/browser.html">Source comparison <span aria-hidden="true">↗</span></a></footer>

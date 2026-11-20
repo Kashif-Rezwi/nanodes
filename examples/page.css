@@ -34,7 +34,7 @@ button[type="submit"]:hover { background: #c0d7ff; }
 #summary { letter-spacing: 0; }
 .stage { display: flex; flex: 1; align-items: center; justify-content: center; min-height: 320px; padding: 40px 0; }
 #display { width: 100%; }
-#display .nanodes-image { width: max-content; max-width: 100%; margin: auto; }
+#display .nanodes-image { width: 100%; max-width: 100%; margin: auto; }
 #display .nanodes-text { margin: 0; }
 .preview-bottom { border-top: 1px solid var(--line); padding-top: 16px; }
 .preview-bottom p { margin: 0; font-size: 12px; }
@@ -51,3 +51,10 @@ footer { padding: 24px 0; color: var(--muted); font-size: 12px; }
   footer { align-items: flex-start; font-size: 11px; }
 }
 @media (max-width: 380px) { .preview-bottom { align-items: flex-start; flex-direction: column; } }
+
+.playback-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+details { margin-top: 20px; color: var(--muted); font-size: 12px; }
+summary { cursor: pointer; }
+details label { margin-top: 16px; }
+.check { display: flex; align-items: center; gap: 8px; }
+.check input { accent-color: var(--accent); }

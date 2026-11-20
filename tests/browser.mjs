@@ -1,3 +1,4 @@
+import { runApiChecks } from './browser-api.mjs';
 import { prepareTextFrame } from '/dist/text.js';
 const result = document.getElementById('result');
 window.runParityChecks = async () => {
@@ -29,7 +30,7 @@ window.runParityChecks = async () => {
   tick(16); tick(320); tick(3400); tick(320);
   assert(textA() === textB(), 'Automatic cycle matches');
   a.testClock.reduced(true); b.testClock.reduced(true);
-  assert(textA() === textB() && b.testClock.pending.frames === 0 && b.testClock.pending.intervals === 0, 'Reduced motion settles and stops scheduling');
+  assert(textA() === textB() && a.testClock.pending.frames === 0 && a.testClock.pending.intervals === 0 && b.testClock.pending.frames === 0 && b.testClock.pending.intervals === 0, 'Reduced motion settles and stops scheduling');
   event('click');
   assert(textA() === textB() && b.testClock.pending.frames === 0, 'Reduced-motion manual advance is immediate');
   a.testClock.reduced(false); b.testClock.reduced(false);
@@ -47,6 +48,9 @@ window.runParityChecks = async () => {
   const extracted = b.document.querySelector('.nanodes-art');
   const properties = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'color', 'width', 'height', 'filter', 'whiteSpace'];
   assert(properties.every(key => a.getComputedStyle(original)[key] === b.getComputedStyle(extracted)[key]), 'Contact text typography, dimensions, color, and glow match');
+  const originalBox = a.getComputedStyle(a.document.getElementById('ascii-interactive-zone'));
+  const extractedBox = b.getComputedStyle(b.document.querySelector('.nanodes-display'));
+  assert(['width', 'height', 'paddingTop', 'paddingLeft', 'boxSizing'].every(key => originalBox[key] === extractedBox[key]), 'Outer sizing and padding match the source');
   b.extracted.controller.destroy(); b.extracted.controller.destroy();
   assert(b.testClock.pending.frames === 0 && b.testClock.pending.intervals === 0 && !b.document.querySelector('.nanodes-display'), 'Destroy removes owned work and DOM, and is idempotent');
   a.reference.stopAutoCycle();
@@ -87,6 +91,7 @@ window.runParityChecks = async () => {
   assert(invalidGrid && host.childElementCount === 0, 'Invalid grids fail before creating DOM or scheduled work');
   assert(b.testClock.pending.frames === 0 && b.testClock.pending.intervals === 0, 'All additional instances clean up their scheduled work');
   host.remove(); imageHost.remove();
+  runApiChecks(b, assert);
   result.textContent = `${checks.length} checks passed.\n` + checks.join('\n');
   return checks;
 };

@@ -19,7 +19,7 @@ if (location.search.includes('test')) {
       const callbacks = [...frames.values()]; frames.clear();
       for (const fn of callbacks) fn(now);
     },
-    reduced(value) { motion.matches = value; motion.dispatchEvent(new Event('change')); },
+    reduced(value) { motion.matches = value; motion.dispatchEvent(new MediaQueryListEvent('change', { matches: value, media: '(prefers-reduced-motion: reduce)' })); },
     get pending() { return { frames: frames.size, intervals: intervals.size }; },
   };
 }

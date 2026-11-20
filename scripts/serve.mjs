@@ -12,7 +12,7 @@ createServer(async (request, response) => {
     response.writeHead(400).end('Bad request');
     return;
   }
-  const file = resolve(root, '.' + (pathname === '/' ? '/dist/example.html' : pathname));
+  const file = resolve(root, '.' + (pathname === '/' ? '/tests/browser.html' : pathname));
   if (!file.startsWith(root + sep)) { response.writeHead(403).end(); return; }
   try {
     const content = await readFile(file);

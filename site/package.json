@@ -1,0 +1,32 @@
+{
+  "name": "nanodes-site",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "npm --prefix .. run build",
+    "dev": "next dev --hostname 127.0.0.1",
+    "prebuild": "npm --prefix .. run build",
+    "build": "next build",
+    "typecheck": "next typegen && tsc --noEmit",
+    "pretypecheck": "npm --prefix .. run build"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "@mantine/core": "9.8.2",
+    "@mantine/hooks": "9.8.2",
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@fontsource-variable/dm-sans": "5.3.0",
+    "@fontsource-variable/space-grotesk": "5.3.0",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "6.0.3"
+  }
+}

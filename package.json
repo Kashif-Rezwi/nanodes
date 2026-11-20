@@ -27,7 +27,10 @@
     "build": "node scripts/build.mjs",
     "test": "npm run build && node --test tests/*.test.mjs",
     "dev": "npm run build && node scripts/serve.mjs",
-    "reference": "node scripts/reference.mjs"
+    "reference": "node scripts/reference.mjs",
+    "site:dev": "npm --prefix site run dev",
+    "site:build": "npm --prefix site run build",
+    "site:check": "npm --prefix site run typecheck"
   },
   "devDependencies": {
     "typescript": "7.0.2"

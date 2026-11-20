@@ -22,6 +22,17 @@ export function runApiChecks(win, assert) {
   assert(pending().intervals === 0 && art() === frames[0].ascii, 'Manual pause survives hover, visibility, motion changes, and manual advance');
   display.play();
   assert(pending().intervals === 1, 'Play resumes after a manual pause');
+  display.setTransition('none');
+  const current = art();
+  assert(current === frames[0].ascii && pending().intervals === 1, 'Changing transition preserves the selected frame and playback timer');
+  display.next();
+  assert(art() === frames[1].ascii && pending().frames === 0, 'Instant mode applies to the next selection without remounting');
+  display.setTransition('shimmer');
+  display.next(); tick(16);
+  assert(pending().frames === 1, 'Shimmer can resume on the same display');
+  display.setTransition('none');
+  assert(art() === frames[0].ascii && pending().frames === 0, 'Changing to instant settles an active morph');
+  assert(rejects(() => display.setTransition('invalid'), /Invalid transition/) && art() === frames[0].ascii && pending().intervals === 1, 'Invalid transition changes leave content and playback intact');
   display.destroy();
 
   const sourceFrames = frames.map(frame => ({ ...frame }));
@@ -60,7 +71,7 @@ export function runApiChecks(win, assert) {
     win.HTMLCanvasElement.prototype.getContext = () => null;
     assert(rejects(() => prepareImageFrames([{ name: 'A', color: '#fff', svg: path }]), /Canvas 2D support/), 'Missing Canvas support fails explicitly');
   } finally { win.HTMLCanvasElement.prototype.getContext = getContext; }
-  display.play(); display.pause(); display.next(); display.show(0); display.destroy();
+  display.play(); display.pause(); display.next(); display.show(0); display.setTransition('shimmer'); display.destroy();
   assert(pending().frames === 0 && pending().intervals === 0 && host.childElementCount === 0, 'Destroyed controllers remain inert and all API fixtures clean up');
   host.remove();
 }

@@ -1,6 +1,7 @@
 import { createMorph } from './transition.js';
 import type { GlyphFrame, DisplayOptions, DisplayController } from './types.js';
 import { validateDisplay } from './display-options.js';
+import { choice } from './validation.js';
 export type { GlyphFrame, DisplayOptions, DisplayController } from './types.js';
 
 /** Mount prepared text or image frames into a caller-owned host. */
@@ -12,6 +13,7 @@ export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], op
   const frames = input.map(frame => ({ ...frame }));
   const { columns, rows, variant } = config;
   let playing = config.autoplay;
+  let transition = config.transition;
   const doc = host.ownerDocument;
   const win = doc.defaultView!;
   if (typeof win.matchMedia !== 'function' || typeof win.requestAnimationFrame !== 'function' || !win.CSS?.supports) {
@@ -52,7 +54,7 @@ export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], op
     container.style.setProperty('--nanodes-color', target.color);
     equivalent.textContent = target.label;
     container.setAttribute('aria-label', interactive ? target.label + '. Show next item' : target.label);
-    if (immediate || config.transition === 'none' || config.duration === 0) {
+    if (immediate || transition === 'none' || config.duration === 0) {
       morph.cancel();
       display.textContent = target.ascii;
     } else morph.morphTo(target.ascii);
@@ -103,6 +105,14 @@ export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], op
     next,
     play() { if (!destroyed) { playing = true; startCycle(); } },
     pause() { playing = false; stopCycle(); },
+    setTransition(value) {
+      if (destroyed) return;
+      transition = choice(value, ['shimmer', 'none'], 'transition');
+      if (transition === 'none') {
+        morph.cancel();
+        display.textContent = frames[index].ascii;
+      }
+    },
     show(nextIndex: number) {
       if (destroyed) return;
       if (!Number.isInteger(nextIndex) || nextIndex < 0 || nextIndex >= frames.length) {

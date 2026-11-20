@@ -9,14 +9,13 @@ export function createMorph(display: HTMLElement, columns: number, rows: number,
   const morphRunesLen = morphRunes.length;
   let animFrameId: number | null = null;
 
-  function morphTo(targetAscii: string, onComplete?: () => void) {
+  function morphTo(targetAscii: string) {
     if (animFrameId) win.cancelAnimationFrame(animFrameId);
 
     // Keep the content settled when motion is disabled.
     if (reducedMotionQuery.matches) {
       display.textContent = targetAscii;
       animFrameId = null;
-      if (onComplete) onComplete();
       return;
     }
 
@@ -66,7 +65,6 @@ export function createMorph(display: HTMLElement, columns: number, rows: number,
       } else {
         display.textContent = targetAscii;
         animFrameId = null;
-        if (onComplete) onComplete();
       }
     }
 

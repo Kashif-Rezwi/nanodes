@@ -60,5 +60,6 @@ export interface DisplayController {
   show(index: number): void;
   play(): void;
   pause(): void;
+  setTransition(transition: NonNullable<DisplayOptions['transition']>): void;
   destroy(): void;
 }

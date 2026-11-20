@@ -46,19 +46,19 @@ Use native APIs with zero runtime or framework peer dependencies. Compile TypeSc
 - Manual pause persists across events; active transitions may finish. Default image click/hover/visibility quirks remain as documented in the baseline. Broader interruption/offscreen policy changes belong in hardening.
 - Prepare text-only scenes without browser globals; request Canvas/Path2D only for SVG nodes. Validate grids and options before mounting, path command groups before sampling, and colors in the browser. Document errors instead of clipping or silently accepting unusable paths.
 - Use host-scoped font family/size and glow radius variables; keep frame color internal to the mounted display. Responsive sizing must preserve the default source dimensions.
-- Keep one playground preview: text, SVG samples, or a composed text + SVG example. Put alignment and wrapping in a small optional disclosure, with explicit play/pause when cycling.
+- Keep the website as the only playground, with text, SVG-only, and SVG + text modes, transition selection, and autoplay controls. Advanced text layout options remain in the API and its tests.
 
 ### Verification and assets
 
 Compare all 25 original SVG/label frames, static hero output, transition steps, interruption, playback, reduced motion, visibility, and computed styles against independently generated source fixtures. Cover shared text playback, static mode, instant transitions, independent instances, and cleanup. Node tests verify pure preparation and browser-free imports.
 
-Use `npm run reference -- /absolute/path/to/portfolio` and `/tests/browser.html` for local source comparisons; keep generated assets and screenshots in ignored `.reference/`. The original brand paths have unverified provenance, so the shareable playground uses three original geometric samples. Verify licensing before distributing any brand preset.
+Use `npm run reference -- /absolute/path/to/portfolio`, then `npm run test:browser` and the comparison server at `http://127.0.0.1:4173` for local source comparisons; keep generated assets and screenshots in ignored `.reference/`. The original brand paths have unverified provenance, so the shareable playground uses three original geometric samples. Verify licensing before distributing any brand preset.
 
 ## Library website
 
 The separate `site/` Next.js App Router app introduces Nanodes and demonstrates the real library. Statically render the landing content, metadata, and social card; keep browser rendering and controls inside small client components. Use local fonts, native CSS, accessible controls, reduced-motion preferences, and cleanup/offscreen pause for animated specimens. Render the static wordmark with pure text preparation; update preview playback without resampling or remounting, and provide an explicit hero pause/resume control.
 
-The site consumes the compiled local library through a TypeScript alias and has its own dependency manifest and lockfile. Next.js and React are website dependencies only. Keep the standalone playground and public library API independent, and use source-build instructions until npm publication. The README documents local commands and the production origin setting. Website work does not replace the hardening tasks below.
+The site consumes the compiled local library through a TypeScript alias and has its own dependency manifest and lockfile. Next.js and React are website dependencies only. Keep the website playground and public library API independent, and use source-build instructions until npm publication. `npm run dev` starts the website; the separate `test:browser` command serves only the source-comparison fixtures. The README documents local commands and the production origin setting. Website work does not replace the hardening tasks below.
 
 ## Development phases
 

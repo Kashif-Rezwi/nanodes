@@ -18,13 +18,11 @@ Images are filled SVG **path silhouettes** in a roughly 0–24 coordinate space.
 
 ```sh
 npm ci
-npm test
+npm ci --prefix site
 npm run dev
 ```
 
-Use a current Node.js LTS release and npm. Open [the playground](http://127.0.0.1:4173). One preview supports text, SVG samples, and composed text + SVG scenes. Separate text items with a **blank line**; individual line breaks stay inside an item. Expand **Text layout** for alignment and wrapping. Apply text edits with **Apply changes**. Static mode permits manual advance; cycling adds **Pause/Play**.
-
-The server has no file watcher; rebuild or restart after source changes. The three geometric SVG samples belong to the playground and are not imported by the library.
+Use a current Node.js LTS release and npm. Open [the website playground](http://127.0.0.1:3000/#playground) to try text, SVG shapes, and SVG + text, with shimmer/instant transitions and autoplay controls. The website is the only playground; its geometric samples stay separate from the library.
 
 ## Prepare content
 
@@ -84,15 +82,9 @@ Grid dimensions are integers from 1–512. Glyph spacing, line gaps, and node ga
 
 ## Next.js website
 
-The landing page and its curated demo live in `site/`, an independent Next.js App Router app. Its React/Next.js dependencies stay separate from the library. The site consumes the compiled local library and self-hosts its fonts.
+The landing page and playground live in `site/`, an independent Next.js App Router app. Its website dependencies stay separate from the library. The site consumes the compiled local library and self-hosts its fonts.
 
-```sh
-npm ci
-npm ci --prefix site
-npm run site:dev
-```
-
-Open [the website](http://127.0.0.1:3000). `npm run site:check` checks site types and `npm run site:build` generates a static export in `site/out/`. These commands build the library first, updating `dist/` in place so checks can run while the website preview is open. The original standalone playground remains available through `npm run dev`.
+`npm run dev` starts the website, `npm run site:check` checks its types, and `npm run site:build` generates a static export in `site/out/`. These commands build the library first, updating `dist/` in place so checks can run while the website preview is open.
 
 Before deploying the export, set `SITE_URL` to the real public origin so social image URLs use the production domain. The local default is `http://localhost:3000`. The site uses Space Grotesk and DM Sans from Fontsource's OFL-licensed font packages; npm publication of the library is a separate roadmap task.
 
@@ -102,9 +94,10 @@ Before deploying the export, set `SITE_URL` to the real public origin so social 
 
 ```sh
 npm run reference -- /absolute/path/to/portfolio
+npm run test:browser
 ```
 
-With the server running, open [the comparison](http://127.0.0.1:4173/tests/browser.html) and select **Run deterministic comparison**. Reload before rerunning; cleanup checks destroy the instances. Reference assets stay in ignored `.reference/`; brand paths are not distributed presets. Browser assertions are separate from `npm test`.
+The test command builds the library and starts the comparison server. Open [the comparison](http://127.0.0.1:4173) and select **Run deterministic comparison**. Reload before rerunning; cleanup checks destroy the instances. Reference assets stay in ignored `.reference/`; brand paths are not distributed presets. Browser assertions are separate from `npm test`.
 
 See [the roadmap](docs/roadmap.md) for the development plan. Host entrance effects, background dots, and portfolio integration remain separate from the library.
 

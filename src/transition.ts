@@ -1,5 +1,5 @@
 /** The original diagonal wave, including its final exact-frame assignment. */
-export function createMorph(display: HTMLElement, columns: number, rows: number, reducedMotionQuery: MediaQueryList) {
+export function createMorph(display: HTMLElement, columns: number, rows: number, reducedMotionQuery: MediaQueryList, duration = 320) {
   const win = display.ownerDocument.defaultView!;
   const COLS = columns;
   const TOTAL_ROWS = rows;
@@ -24,11 +24,10 @@ export function createMorph(display: HTMLElement, columns: number, rows: number,
     const currentLines = currentAscii.split('\n');
     const targetLines = targetAscii.split('\n');
 
-    const duration = 320;
     let startTime: number | null = null;
 
     function frame(timestamp: number) {
-      if (!startTime) startTime = timestamp;
+      if (startTime === null) startTime = timestamp;
       const elapsed = timestamp - startTime;
       const progress = Math.min(1, elapsed / duration);
 

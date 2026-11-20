@@ -1,34 +1,39 @@
+import { validatePath } from './path.js';
+import { integer } from './validation.js';
+
 /** Prepare SVG silhouettes with the portfolio's original 8× supersampling. */
-export function createSvgSampler(doc: Document = document) {
-  const COLS = 38;
+export function createSvgSampler(doc: Document, columns = 38) {
+  const COLS = integer(columns, 'columns');
   const ICON_ROWS = 12;
   const boundsCanvas = doc.createElement('canvas');
   boundsCanvas.width = 240;
   boundsCanvas.height = 240;
-  const boundsCtx = boundsCanvas.getContext('2d', { willReadFrequently: true });
+  const boundsCtx = context(boundsCanvas);
 
   const SUPERSAMPLE = 8;
-  const hiresW = COLS * SUPERSAMPLE; // 304 px
+  const hiresW = COLS * SUPERSAMPLE;
   const hiresH = ICON_ROWS * SUPERSAMPLE; // 96 px
   const rasterCanvas = doc.createElement('canvas');
   rasterCanvas.width = hiresW;
   rasterCanvas.height = hiresH;
-  const rasterCtx = rasterCanvas.getContext('2d', { willReadFrequently: true });
+  const rasterCtx = context(rasterCanvas);
+  const browserPath = doc.defaultView?.Path2D;
+  if (!browserPath) throw new Error('SVG preparation requires Path2D support.');
+  const Path = browserPath;
 
-  // Pass 1: Measure exact visual bounds of rendered path
-  function getPathBounds(svgPathStr: string) {
-    if (!boundsCtx) return { minX: 0, maxX: 24, minY: 0, maxY: 24, w: 24, h: 24 };
+  function context(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) throw new Error('SVG preparation requires Canvas 2D support.');
+    return ctx;
+  }
+
+  // Measure in the original 24-unit coordinate space.
+  function getPathBounds(path: Path2D) {
     boundsCtx.clearRect(0, 0, 240, 240);
     boundsCtx.save();
     boundsCtx.scale(10, 10);
-    try {
-      const path = new Path2D(svgPathStr);
-      boundsCtx.fillStyle = '#ffffff';
-      boundsCtx.fill(path);
-    } catch (e) {
-      boundsCtx.restore();
-      return { minX: 0, maxX: 24, minY: 0, maxY: 24, w: 24, h: 24 };
-    }
+    boundsCtx.fillStyle = '#ffffff';
+    boundsCtx.fill(path);
     boundsCtx.restore();
 
     const imgData = boundsCtx.getImageData(0, 0, 240, 240).data;
@@ -49,7 +54,7 @@ export function createSvgSampler(doc: Document = document) {
     }
 
     if (!hasPixels) {
-      return { minX: 0, maxX: 24, minY: 0, maxY: 24, w: 24, h: 24 };
+      throw new RangeError('SVG path must have filled area inside the 0–24 coordinate space.');
     }
 
     return {
@@ -64,14 +69,16 @@ export function createSvgSampler(doc: Document = document) {
 
   // Pass 2: High-Resolution 8x Supersampled Anti-Clipping Rasterizer
   function rasterizeSvgToAscii(svgPathStr: string, scaleModifier = 1.0): string[] {
-    const bounds = getPathBounds(svgPathStr);
-    if (!rasterCtx) return [];
+    validatePath(svgPathStr);
+    if (!Number.isFinite(scaleModifier) || scaleModifier <= 0) throw new RangeError('SVG scale must be positive and finite.');
+    const path = new Path(svgPathStr);
+    const bounds = getPathBounds(path);
 
     rasterCtx.clearRect(0, 0, hiresW, hiresH);
 
     const charAspect = 0.52;
     const BASE_TARGET_HEIGHT = 9.4 * scaleModifier;
-    const BASE_MAX_WIDTH = 24.5 * scaleModifier;
+    const BASE_MAX_WIDTH = (COLS / 38) * 24.5 * scaleModifier;
 
     const scaleH = (BASE_TARGET_HEIGHT / charAspect) / bounds.h;
     const scaleW = BASE_MAX_WIDTH / bounds.w;
@@ -87,14 +94,8 @@ export function createSvgSampler(doc: Document = document) {
     rasterCtx.translate(offsetX, offsetY);
     rasterCtx.scale(scale * SUPERSAMPLE, scale * charAspect * SUPERSAMPLE);
 
-    try {
-      const path = new Path2D(svgPathStr);
-      rasterCtx.fillStyle = '#ffffff';
-      rasterCtx.fill(path);
-    } catch (e) {
-      rasterCtx.restore();
-      return [];
-    }
+    rasterCtx.fillStyle = '#ffffff';
+    rasterCtx.fill(path);
     rasterCtx.restore();
 
     const imgData = rasterCtx.getImageData(0, 0, hiresW, hiresH).data;

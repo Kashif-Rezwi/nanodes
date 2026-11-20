@@ -1,34 +1,27 @@
 import { createMorph } from './transition.js';
-
-export interface GlyphFrame {
-  ascii: string;
-  label: string;
-  color: string;
-}
-
-export interface DisplayOptions {
-  autoplay?: boolean;
-  transition?: 'shimmer' | 'none';
-  variant?: 'text' | 'image';
-}
+import type { GlyphFrame, DisplayOptions, DisplayController } from './types.js';
+import { validateDisplay } from './display-options.js';
+export type { GlyphFrame, DisplayOptions, DisplayController } from './types.js';
 
 /** Mount prepared text or image frames into a caller-owned host. */
-export function mountDisplay(host: HTMLElement, frames: readonly GlyphFrame[], options: DisplayOptions = {}) {
-  if (!frames.length) throw new Error('The display needs at least one frame.');
-  const lines = frames[0].ascii.split('\n');
-  const columns = lines[0].length;
-  const rows = lines.length;
-  if (!columns || !frames.every(frame => {
-    const frameRows = frame.ascii.split('\n');
-    return frameRows.length === rows && frameRows.every(row => row.length === columns);
-  })) throw new Error('Frames must share the same non-empty glyph grid.');
-  const variant = options.variant ?? 'image';
-  const autoplay = options.autoplay !== false && frames.length > 1;
+export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], options: DisplayOptions = {}): DisplayController {
+  const config = validateDisplay(input, options);
+  if (!host?.ownerDocument?.defaultView || typeof host.append !== 'function') {
+    throw new TypeError('Mounting requires a browser element.');
+  }
+  const frames = input.map(frame => ({ ...frame }));
+  const { columns, rows, variant } = config;
+  let playing = config.autoplay;
   const doc = host.ownerDocument;
   const win = doc.defaultView!;
+  if (typeof win.matchMedia !== 'function' || typeof win.requestAnimationFrame !== 'function' || !win.CSS?.supports) {
+    throw new Error('Display requires matchMedia, requestAnimationFrame, and CSS.supports.');
+  }
+  const reducedMotion = win.matchMedia('(prefers-reduced-motion: reduce)');
+  if (frames.some(frame => !win.CSS.supports('color', frame.color))) throw new TypeError('Invalid frame color.');
   const container = doc.createElement('div');
   container.className = 'nanodes-display nanodes-' + variant;
-  const interactive = frames.length > 1;
+  const interactive = config.advanceOnClick && frames.length > 1;
   if (interactive) container.tabIndex = 0;
   container.setAttribute('role', interactive ? 'button' : 'img');
   const glow = doc.createElement('div');
@@ -47,8 +40,7 @@ export function mountDisplay(host: HTMLElement, frames: readonly GlyphFrame[], o
   container.append(wrapper, equivalent);
   host.append(container);
 
-  const reducedMotion = win.matchMedia('(prefers-reduced-motion: reduce)');
-  const morph = createMorph(display, columns, rows, reducedMotion);
+  const morph = createMorph(display, columns, rows, reducedMotion, config.duration);
   let index = 0;
   let interval: number | null = null;
   let destroyed = false;
@@ -60,7 +52,7 @@ export function mountDisplay(host: HTMLElement, frames: readonly GlyphFrame[], o
     container.style.setProperty('--nanodes-color', target.color);
     equivalent.textContent = target.label;
     container.setAttribute('aria-label', interactive ? target.label + '. Show next item' : target.label);
-    if (immediate || options.transition === 'none') {
+    if (immediate || config.transition === 'none' || config.duration === 0) {
       morph.cancel();
       display.textContent = target.ascii;
     } else morph.morphTo(target.ascii);
@@ -70,12 +62,12 @@ export function mountDisplay(host: HTMLElement, frames: readonly GlyphFrame[], o
     interval = null;
   }
   function startCycle() {
-    if (destroyed || !autoplay || reducedMotion.matches || doc.hidden) return;
+    if (destroyed || !playing || frames.length < 2 || reducedMotion.matches || doc.hidden) return;
     stopCycle();
-    interval = win.setInterval(() => switchItem(index + 1), 3400);
+    interval = win.setInterval(() => switchItem(index + 1), config.interval);
   }
   function next() {
-    if (destroyed || !interactive) return;
+    if (destroyed || frames.length < 2) return;
     switchItem(index + 1);
     startCycle(); // Preserve the reference's restart even while hovered.
   }
@@ -94,17 +86,23 @@ export function mountDisplay(host: HTMLElement, frames: readonly GlyphFrame[], o
     if (doc.hidden) { stopCycle(); morph.cancel(); }
     else startCycle(); // Preserve the original partial-frame resume behavior.
   }
-  container.addEventListener('click', onClick);
-  container.addEventListener('keydown', onKeyDown);
-  container.addEventListener('mouseenter', stopCycle);
-  container.addEventListener('mouseleave', startCycle);
+  if (interactive) {
+    container.addEventListener('click', onClick);
+    container.addEventListener('keydown', onKeyDown);
+  }
+  if (config.pauseOnHover) {
+    container.addEventListener('mouseenter', stopCycle);
+    container.addEventListener('mouseleave', startCycle);
+  }
   reducedMotion.addEventListener('change', onMotionChange);
   doc.addEventListener('visibilitychange', onVisibilityChange);
-  switchItem(0, !autoplay);
+  switchItem(0, !playing || frames.length < 2);
   startCycle();
 
   return {
     next,
+    play() { if (!destroyed) { playing = true; startCycle(); } },
+    pause() { playing = false; stopCycle(); },
     show(nextIndex: number) {
       if (destroyed) return;
       if (!Number.isInteger(nextIndex) || nextIndex < 0 || nextIndex >= frames.length) {

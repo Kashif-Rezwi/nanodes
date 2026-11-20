@@ -82,6 +82,20 @@ Set these on the host: `--nanodes-font-mono`, `--nanodes-font-size` (responsive 
 
 Grid dimensions are integers from 1–512. Glyph spacing, line gaps, and node gaps allow 0–512. Empty text intentionally produces blank glyph rows; empty sequences/nodes and blank accessible labels are errors. Unsupported glyphs become spaces unless strict mode is selected. Overflows, invalid dimensions/options/selections, malformed path command groups, and SVG paths with no filled area in the sampling space fail explicitly. Colors are validated when mounted. Missing browser/Canvas capabilities fail without attaching a display. The path sampler is not a general SVG renderer.
 
+## Next.js website
+
+The landing page and its curated demo live in `site/`, an independent Next.js App Router app. Its React/Next.js dependencies stay separate from the library. The site consumes the compiled local library and self-hosts its fonts.
+
+```sh
+npm ci
+npm ci --prefix site
+npm run site:dev
+```
+
+Open [the website](http://127.0.0.1:3000). `npm run site:check` checks site types and `npm run site:build` generates a static export in `site/out/`. These commands build the library first. The original standalone playground remains available through `npm run dev`.
+
+Before deploying the export, set `SITE_URL` to the real public origin so social image URLs use the production domain. The local default is `http://localhost:3000`. The site uses Space Grotesk and DM Sans from Fontsource's OFL-licensed font packages; npm publication of the library is a separate roadmap task.
+
 ## Verification and development
 
 `npm test` compiles the library and runs the Node tests. To compare against the original portfolio, use a clone containing the [baseline commit](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/commit/cb8d321297700866709cedb96fc1e8df362e8212):

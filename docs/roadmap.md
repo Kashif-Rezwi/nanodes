@@ -54,6 +54,12 @@ Compare all 25 original SVG/label frames, static hero output, transition steps, 
 
 Use `npm run reference -- /absolute/path/to/portfolio` and `/tests/browser.html` for local source comparisons; keep generated assets and screenshots in ignored `.reference/`. The original brand paths have unverified provenance, so the shareable playground uses three original geometric samples. Verify licensing before distributing any brand preset.
 
+## Library website
+
+The separate `site/` Next.js App Router app introduces Nanodes and demonstrates the real library. Statically render the landing content, metadata, and social card; keep browser rendering and controls inside small client components. Use local fonts, native CSS, accessible controls, reduced-motion preferences, and cleanup/offscreen pause for animated specimens.
+
+The site consumes the compiled local library through a TypeScript alias and has its own dependency manifest and lockfile. Next.js and React are website dependencies only. Keep the standalone playground and public library API independent, and use source-build instructions until npm publication. The README documents local commands and the production origin setting. Website work does not replace the hardening tasks below.
+
 ## Development phases
 
 ### Phase 1 — Faithful extraction

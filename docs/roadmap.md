@@ -29,8 +29,9 @@ Baseline: [portfolio commit cb8d321](https://github.com/Kashif-Rezwi/Kashif-Rezw
 
 - `text.ts`: one alphabet and pure text preparation, usable without browser globals.
 - `svg.ts`: the original opacity sampler, called only in a browser.
-- `frames.ts`: SVG silhouette and label composition.
+- `frames.ts`: text/SVG node composition and the original SVG/label preset.
 - `display.ts`: instance-owned DOM, playback, selection, and cleanup for either frame type.
+- `types.ts`, `validation.ts`, and `path.ts`: public content contracts and explicit input boundaries; `display-options.ts` validates mounting configuration.
 - `transition.ts`: the original shimmer algorithm; instant changes bypass it.
 - `styles.css`: prefixed text and image treatments.
 
@@ -38,12 +39,14 @@ Use native APIs with zero runtime or framework peer dependencies. Compile TypeSc
 
 ### Small API
 
-- A frame contains `ascii`, `label`, and `color`; a sequence shares one grid size.
-- `prepareTextFrame(text)` returns the original fixed-width glyph string.
-- `prepareImageFrames(items)` accepts SVG path silhouettes with names and colors.
-- `mountDisplay(host, frames, options)` accepts a text/image style variant, autoplay, and shimmer/instant transitions. Return `next`, `show`, and `destroy`.
-- Static mode starts with a settled frame and no timer; manual changes can still shimmer. Single-item sequences never autoplay. Preserve the original image behavior with the default options.
-- Keep the playground to one preview with content selection, text/SVG samples, static/cycle playback, and shimmer/instant changes. Do not turn it into a general editor.
+- `Scene` contains a meaningful label, optional color, and a list of `TextNode` / `SvgNode` data. `prepareFrames` stacks nodes with a glyph-row gap and bottom-pads all scenes into the same rectangular grid. Default width is 38 columns; explicit rows are a hard boundary.
+- Text nodes support alignment, letter spacing, line spacing, line breaks, optional glyph-boundary wrapping, and blank/error handling for unsupported glyphs. Do not add rich text, arbitrary positioning, or a scene graph.
+- `prepareTextFrame` preserves the 76-column optical top-row preset; `prepareImageFrames` expresses the original 38 × 17 image/label preset through the composer. Raw text nodes have two rows per logical line; they do not add the hero's optical top row.
+- `mountDisplay` accepts prepared frames, styling variant, autoplay, transition, timing, and hover/click flags. Its controller exposes `next`, `show`, `play`, `pause`, and `destroy`. Snapshot frames/options at mount so external mutations cannot corrupt a running instance.
+- Manual pause persists across events; active transitions may finish. Default image click/hover/visibility quirks remain as documented in the baseline. Broader interruption/offscreen policy changes belong in hardening.
+- Prepare text-only scenes without browser globals; request Canvas/Path2D only for SVG nodes. Validate grids and options before mounting, path command groups before sampling, and colors in the browser. Document errors instead of clipping or silently accepting unusable paths.
+- Use host-scoped font family/size and glow radius variables; keep frame color internal to the mounted display. Responsive sizing must preserve the default source dimensions.
+- Keep one playground preview: text, SVG samples, or a composed text + SVG example. Put alignment and wrapping in a small optional disclosure, with explicit play/pause when cycling.
 
 ### Verification and assets
 
@@ -81,6 +84,15 @@ Use `npm run reference -- /absolute/path/to/portfolio` and `/tests/browser.html`
 - Keep optional presets separate and document the small set of useful CSS variables.
 
 **Complete when:** differently configured instances operate independently; one transition serves both node types; static helpers work during SSR; invalid content fails clearly; both portfolio uses fit the API without special-case machinery.
+
+### API verification
+
+- Strict TypeScript/ESM output includes the exported node, scene, frame, and controller contracts.
+- Node checks cover multiline text, alignment, spacing, wrapping, overflow, unsupported glyph policies, shared grid composition, browser-free imports/preparation, and input boundaries.
+- Browser checks retain all 25 source SVG/label frames and hero output, original transitions and interactions, plus composed scenes, configurable timing/controls, manual pause persistence, independent instances, color/path/Canvas errors, and cleanup.
+- The motion fixture emits a `MediaQueryListEvent` carrying `matches`; compare both the source and extracted schedulers when reduced motion changes.
+- Settled image screenshots match the source at 1440 × 900 and 390 × 900 in Chrome for Testing 151 on macOS. Cross-browser verification and performance profiling remain in Phase 3.
+- Defaults and compatibility helpers preserve both portfolio uses; actual portfolio installation remains Phase 4. No brand assets or runtime dependencies are added.
 
 ### Phase 3 — Measured hardening and testing
 

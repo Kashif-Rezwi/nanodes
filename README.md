@@ -6,18 +6,15 @@ Nanodes turns text and SVG paths into block-glyph displays with diagonal shimmer
 
 ## Features
 
-- Text-only displays and SVG silhouettes with block-letter labels.
-- Static display or automatic cycling through multiple items.
-- The original shimmer wave or instant glyph changes.
+- Text and SVG nodes, individually or stacked in one frame.
+- Multiline text, alignment, glyph spacing, and optional wrapping.
+- Static display or automatic cycling, with shimmer or instant changes.
 - Color, glow, keyboard advance, reduced-motion support, and explicit cleanup.
-- Browser-native ES modules, separate CSS, and TypeScript declarations.
-- Pure text preparation for server-rendered markup.
+- Native ES modules, separate CSS, TypeScript declarations, and server-friendly text preparation.
 
-Images currently mean SVG **path silhouettes**, not photographs or arbitrary image files. Text uses the original uppercase block alphabet: A–Z, numbers, spaces, `.`, `-`, and `/`. Unsupported characters become spaces; oversized text raises an error.
+Images are filled SVG **path silhouettes** in a roughly 0–24 coordinate space. Text uses the original uppercase block alphabet: A–Z, numbers, spaces, `.`, `-`, and `/`.
 
 ## Playground
-
-Use a current Node.js LTS release and npm:
 
 ```sh
 npm ci
@@ -25,34 +22,77 @@ npm test
 npm run dev
 ```
 
-Open [the playground](http://127.0.0.1:4173). A single preview handles text and images. Choose the content, playback, and transition; enter one text item per line or select SVG samples. Text edits use **Apply changes**. **Next item** advances manually, including in static mode. Cycling uses the original 3.4-second interval and 320 ms shimmer; reduced motion disables animation and autoplay.
+Use a current Node.js LTS release and npm. Open [the playground](http://127.0.0.1:4173). One preview supports text, SVG samples, and composed text + SVG scenes. Separate text items with a **blank line**; individual line breaks stay inside an item. Expand **Text layout** for alignment and wrapping. Apply text edits with **Apply changes**. Static mode permits manual advance; cycling adds **Pause/Play**.
 
-The development server has no file watcher; restart it after source changes. The three SVG samples are original geometric artwork.
+The server has no file watcher; rebuild or restart after source changes. The three geometric SVG samples belong to the playground and are not imported by the library.
 
-## Structure and API
+## Prepare content
 
-- `src/text.ts` — shared alphabet and pure `prepareTextFrame(text)` helper.
-- `src/svg.ts` — Canvas 2D opacity sampling.
-- `src/frames.ts` — `prepareImageFrames(items)` builds SVG/label frames.
-- `src/display.ts` — `mountDisplay(host, frames, options)` owns rendering, playback, and cleanup.
-- `src/transition.ts` — diagonal shimmer wave.
-- `src/styles.css` — prefixed text/image presentation.
+```js
+import { prepareFrames, mountDisplay } from './dist/index.js';
 
-A frame is `{ ascii, label, color }`. Frames in a sequence share a grid size. `prepareTextFrame` returns a 76 × 3 glyph string; `prepareImageFrames` accepts `{ name, svg, color, scaleModifier? }` items and returns 38 × 17 frames. Here `svg` contains SVG **path data**, not an SVG document.
+const frames = prepareFrames([
+  {
+    label: 'Hello from Nanodes',
+    color: '#a9c8ff',
+    nodes: [
+      { type: 'svg', path: 'M2 2H22V22H2Z' },
+      { type: 'text', text: 'HELLO\nNANODES', align: 'center' },
+    ],
+  },
+], { columns: 38, gap: 2 });
 
-`mountDisplay` accepts `variant: 'text' | 'image'`, `autoplay: boolean`, and `transition: 'shimmer' | 'none'`. Defaults reproduce the image showcase: image styling, autoplay for multiple items, and shimmer. It returns `next()`, `show(index)`, and `destroy()`. A single item never starts autoplay. Include the generated `dist/styles.css` alongside the ES modules; mounting uses browser APIs, while importing modules and preparing text work without a browser.
+const display = mountDisplay(document.querySelector('#display'), frames, {
+  autoplay: false,
+});
+// Call display.destroy() when the host is removed.
+```
 
-## Source comparison
+Include `dist/styles.css` separately. The host supplies layout and available width. These are local build paths; npm exports are part of release preparation.
 
-Generate local fixtures from a portfolio clone containing the [baseline commit](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/commit/cb8d321297700866709cedb96fc1e8df362e8212):
+- A scene has a non-empty accessible `label`, optional `color` (default `#a9c8ff`), and one or more nodes.
+- Text nodes contain `type: 'text'` and `text`. Options: `align` (`left`, `center`, `right`), `letterSpacing` (default 1 glyph column), `lineGap` (default 1 glyph row), `wrap` (default false), and `unsupported` (`blank` or `error`, default `blank`). Wrapping breaks at glyph boundaries, including inside words; it never clips part of a glyph.
+- SVG nodes contain `type: 'svg'`, path data in `path`, and optional positive `scale` (default 1). Each occupies a 12-row raster; enlarging the scale can crop the silhouette within that raster. SVG documents, strokes, transforms, photographs, and image URLs are outside this sampler's scope.
+- Composition options: `columns` (default 38), `rows` (default tallest scene), `gap` between nodes (default 2), and inherited text `align` (default left). Frames are padded at the bottom into a shared grid; text and composed row overflow fail instead of truncating the frame.
+
+Two helpers preserve the original portfolio treatment:
+
+- `prepareTextFrame(text, options?)` returns a glyph string with the original optical top row and 76-column default. It accepts text layout options plus `columns` and `rows`.
+- `prepareImageFrames(items, document?)` accepts `{ name, svg, color, scaleModifier? }` items and returns the original 38 × 17 SVG/label frames using the shared composer. `svg` is path data, not markup.
+
+Both the default hero helper and text-only `prepareFrames` work during SSR. SVG preparation requires a browser document (optional third argument to `prepareFrames`); importing the modules requires no browser globals. For static markup, place escaped glyph output in a `<pre aria-hidden="true">` with a meaningful plain-text equivalent. Use the matching `.nanodes-text` / `.nanodes-text-art` CSS classes for the original text treatment.
+
+## Display and playback
+
+`mountDisplay(host, frames, options?)` accepts prepared `{ ascii, label, color }` frames sharing one rectangular grid. Mount after the browser element exists and call `destroy()` from your framework's cleanup hook. No framework wrapper or peer dependency is required.
+
+Options retain the original defaults:
+
+- `variant: 'image' | 'text'` — styling, default `image`.
+- `autoplay: boolean` — default true; single items never autoplay.
+- `transition: 'shimmer' | 'none'` — default shimmer.
+- `duration` and `interval` — milliseconds, defaults 320 and 3400. Zero duration swaps glyphs immediately; the interval must be positive.
+- `pauseOnHover` and `advanceOnClick` — default true. Disabling click advance also removes button semantics; programmatic selection still works.
+
+The controller provides `next()`, `show(index)`, `play()`, `pause()`, and `destroy()`. Manual pause stops cycling and lets an active morph finish; it persists across manual advance, hover, visibility, and motion changes. Play requests cycling but still respects reduced motion and hidden tabs. The default click/selection behavior restarts the cycle interval even while hovered, matching the source. Hiding the tab cancels active work and retains the partial frame until another selection. Destroy is idempotent and all later controls are inert. Frames and options are snapshotted on mount; remount to replace the content or configuration.
+
+## Styling and errors
+
+Set these on the host: `--nanodes-font-mono`, `--nanodes-font-size` (responsive cap), and `--nanodes-glow-radius`. Static text also uses `--nanodes-accent-text` and `--nanodes-accent`. Mounted frame colors are set through `--nanodes-color`. Defaults preserve the source treatment; font appearance varies across systems.
+
+Grid dimensions are integers from 1–512. Glyph spacing, line gaps, and node gaps allow 0–512. Empty text intentionally produces blank glyph rows; empty sequences/nodes and blank accessible labels are errors. Unsupported glyphs become spaces unless strict mode is selected. Overflows, invalid dimensions/options/selections, malformed path command groups, and SVG paths with no filled area in the sampling space fail explicitly. Colors are validated when mounted. Missing browser/Canvas capabilities fail without attaching a display. The path sampler is not a general SVG renderer.
+
+## Verification and development
+
+`npm test` compiles the library and runs the Node tests. To compare against the original portfolio, use a clone containing the [baseline commit](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/commit/cb8d321297700866709cedb96fc1e8df362e8212):
 
 ```sh
 npm run reference -- /absolute/path/to/portfolio
 ```
 
-With the development server running, open [the comparison](http://127.0.0.1:4173/tests/browser.html) and select **Run deterministic comparison**. Reload before rerunning; cleanup checks destroy the instances. Fixtures stay in ignored `.reference/`; the original brand paths are not a distributed preset. `npm test` runs the build and Node tests separately from these browser checks.
+With the server running, open [the comparison](http://127.0.0.1:4173/tests/browser.html) and select **Run deterministic comparison**. Reload before rerunning; cleanup checks destroy the instances. Reference assets stay in ignored `.reference/`; brand paths are not distributed presets. Browser assertions are separate from `npm test`.
 
-See [the roadmap](docs/roadmap.md) for the development plan. Host layout, entrance effects, and background dots remain outside the library.
+See [the roadmap](docs/roadmap.md) for the development plan. Host entrance effects, background dots, and portfolio integration remain separate from the library.
 
 ## License
 

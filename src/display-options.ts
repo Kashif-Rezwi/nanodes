@@ -23,6 +23,7 @@ export function validateDisplay(frames: readonly GlyphFrame[], options: DisplayO
     transition: choice(options.transition ?? 'shimmer', ['shimmer', 'none'], 'transition'),
     autoplay: booleanOption(options.autoplay ?? true, 'autoplay'),
     pauseOnHover: booleanOption(options.pauseOnHover ?? true, 'pauseOnHover'),
+    pauseWhenOffscreen: booleanOption(options.pauseWhenOffscreen ?? true, 'pauseWhenOffscreen'),
     advanceOnClick: booleanOption(options.advanceOnClick ?? true, 'advanceOnClick'),
     duration: milliseconds(options.duration ?? 320, 'duration', 0),
     interval: milliseconds(options.interval ?? 3400, 'interval', 1),

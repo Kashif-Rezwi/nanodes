@@ -3,14 +3,13 @@ export function createMorph(display: HTMLElement, columns: number, rows: number,
   const win = display.ownerDocument.defaultView!;
   const COLS = columns;
   const TOTAL_ROWS = rows;
-  const THRESHOLDS = Array.from({ length: TOTAL_ROWS }, (_, r) =>
-    Array.from({ length: COLS }, (_, c) => (c / COLS) * 0.65 + (r / TOTAL_ROWS) * 0.35));
+  let thresholds: number[][] | undefined;
   const morphRunes = ['█', '▓', '▒', '░', '▄', '▀', '▌', '▐', '■', '#', '*', '+', '='];
   const morphRunesLen = morphRunes.length;
   let animFrameId: number | null = null;
 
   function morphTo(targetAscii: string) {
-    if (animFrameId) win.cancelAnimationFrame(animFrameId);
+    if (animFrameId !== null) win.cancelAnimationFrame(animFrameId);
 
     // Keep the content settled when motion is disabled.
     if (reducedMotionQuery.matches) {
@@ -19,6 +18,10 @@ export function createMorph(display: HTMLElement, columns: number, rows: number,
       return;
     }
 
+    // Static/reduced-motion displays never need the wave grid. Reuse it after first use.
+    const wave = thresholds ??= Array.from({ length: TOTAL_ROWS }, (_, r) =>
+      Array.from({ length: COLS }, (_, c) => (c / COLS) * 0.65 + (r / TOTAL_ROWS) * 0.35));
+    const outputLines = new Array<string>(TOTAL_ROWS);
     const currentAscii = display.textContent || targetAscii;
     const currentLines = currentAscii.split('\n');
     const targetLines = targetAscii.split('\n');
@@ -30,11 +33,10 @@ export function createMorph(display: HTMLElement, columns: number, rows: number,
       const elapsed = timestamp - startTime;
       const progress = Math.min(1, elapsed / duration);
 
-      const outputLines = new Array(TOTAL_ROWS);
       for (let r = 0; r < TOTAL_ROWS; r++) {
         const curLine = currentLines[r] || '';
         const tgtLine = targetLines[r] || '';
-        const threshRow = THRESHOLDS[r];
+        const threshRow = wave[r];
         let newLine = '';
 
         for (let c = 0; c < COLS; c++) {

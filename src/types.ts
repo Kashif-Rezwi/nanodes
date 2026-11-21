@@ -52,6 +52,7 @@ export interface DisplayOptions {
   duration?: number;
   interval?: number;
   pauseOnHover?: boolean;
+  pauseWhenOffscreen?: boolean;
   advanceOnClick?: boolean;
 }
 

@@ -64,7 +64,7 @@ test('path command groups, arc flags and finite coordinates are validated', () =
 test('mount validation precedes DOM ownership and scheduling', () => {
   assert.throws(() => mountDisplay(null, []), /at least one frame/);
   assert.throws(() => mountDisplay(null, [{ ...frame, ascii: 'XX\nX' }]), /same non-empty glyph grid/);
-  for (const options of [null, { autoplay: null }, { variant: 'canvas' }, { transition: 'fade' }, { autoplay: 'yes' }, { advanceOnClick: 1 }, { pauseOnHover: 0 }]) assert.throws(() => mountDisplay(null, [frame], options), TypeError);
+  for (const options of [null, { autoplay: null }, { variant: 'canvas' }, { transition: 'fade' }, { autoplay: 'yes' }, { advanceOnClick: 1 }, { pauseOnHover: 0 }, { pauseWhenOffscreen: 'yes' }]) assert.throws(() => mountDisplay(null, [frame], options), TypeError);
   for (const options of [{ interval: 0 }, { duration: -1 }, { duration: Infinity }, { interval: 2147483648 }]) assert.throws(() => mountDisplay(null, [frame], options), RangeError);
   assert.throws(() => mountDisplay(null, [frame]), /browser element/);
 });

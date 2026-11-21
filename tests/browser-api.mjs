@@ -1,5 +1,46 @@
-export function runApiChecks(win, assert) {
-  const { mountDisplay, prepareFrames, prepareImageFrames, prepareTextFrame } = win.extracted;
+export function runDisplayChecks(win, api, assert) {
+  const { mountDisplay, prepareImageFrames, prepareTextFrame: prepareText } = api;
+  const tick = delta => win.testClock.tick(delta);
+  const host = win.document.createElement('div');
+  win.document.body.append(host);
+  const textFrames = ['HELLO', 'NANODES'].map(label => ({ ascii: prepareText(label), label, color: '#a9c8ff' }));
+  const imageFrames = prepareImageFrames([{ name: 'Square', color: '#a9c8ff', svg: 'M2 2H22V22H2Z' }]);
+  const staticText = mountDisplay(host, textFrames, { variant: 'text', autoplay: false });
+  const textArt = host.querySelector('.nanodes-text-art');
+  assert(textArt.textContent === textFrames[0].ascii && win.testClock.pending.frames === 0 && win.testClock.pending.intervals === 0, 'Static text starts settled without scheduled work');
+  const imageHost = win.document.createElement('div');
+  win.document.body.append(imageHost);
+  const staticImage = mountDisplay(imageHost, imageFrames, { autoplay: false });
+  staticText.next(); tick(16); tick(320);
+  assert(textArt.textContent === textFrames[1].ascii && win.testClock.pending.intervals === 0, 'Static mode supports manual shimmer without starting autoplay');
+  assert(imageHost.querySelector('.nanodes-art').textContent === imageFrames[0].ascii, 'Text and image instances operate independently');
+  host.querySelector('.nanodes-display').dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
+  tick(16); tick(320);
+  assert(textArt.textContent === textFrames[0].ascii, 'Keyboard advance works for text');
+  let invalidIndex = false;
+  try { staticText.show(2); } catch (error) { invalidIndex = error instanceof win.RangeError; }
+  assert(invalidIndex && textArt.textContent === textFrames[0].ascii, 'Invalid selection leaves the current frame intact');
+  staticText.destroy(); staticImage.destroy();
+
+  const instant = mountDisplay(host, textFrames, { variant: 'text', transition: 'none' });
+  instant.show(1);
+  assert(host.querySelector('.nanodes-text-art').textContent === textFrames[1].ascii && win.testClock.pending.frames === 0, 'Instant transitions assign the target without an animation loop');
+  tick(3400);
+  assert(host.querySelector('.nanodes-text-art').textContent === textFrames[0].ascii, 'Text sequences cycle with the shared playback controller');
+  instant.destroy();
+  const single = mountDisplay(host, [textFrames[0]], { variant: 'text' });
+  single.next();
+  assert(win.testClock.pending.frames === 0 && win.testClock.pending.intervals === 0 && host.querySelector('[role="img"]'), 'Single-item displays remain static even with autoplay requested');
+  single.destroy();
+  let invalidGrid = false;
+  try { mountDisplay(host, [{ ascii: 'XX\nX', label: 'Invalid', color: '#fff' }]); } catch { invalidGrid = true; }
+  assert(invalidGrid && host.childElementCount === 0, 'Invalid grids fail before creating DOM or scheduled work');
+  assert(win.testClock.pending.frames === 0 && win.testClock.pending.intervals === 0, 'All additional instances clean up their scheduled work');
+  host.remove(); imageHost.remove();
+}
+
+export function runApiChecks(win, api, assert) {
+  const { mountDisplay, prepareFrames, prepareImageFrames, prepareTextFrame } = api;
   const host = win.document.createElement('div');
   win.document.body.append(host);
   const frames = ['A', 'B'].map(label => ({ label, color: '#a9c8ff', ascii: prepareTextFrame(label) }));

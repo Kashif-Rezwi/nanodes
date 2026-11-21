@@ -45,71 +45,106 @@ export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], op
   let index = 0;
   let interval: number | null = null;
   let destroyed = false;
+  let hovered = false;
+  let focused = false;
+  let spacePressed = false;
+  let visible = true;
 
+  function settle() {
+    morph.cancel();
+    if (display.textContent !== frames[index].ascii) display.textContent = frames[index].ascii;
+  }
   function switchItem(nextIndex: number, immediate = false) {
     if (destroyed) return;
     index = (nextIndex + frames.length) % frames.length;
     const target = frames[index];
     container.style.setProperty('--nanodes-color', target.color);
     container.setAttribute('aria-label', interactive ? target.label + '. Show next item' : target.label);
-    if (immediate || transition === 'none' || config.duration === 0) {
-      morph.cancel();
-      display.textContent = target.ascii;
-    } else morph.morphTo(target.ascii);
+    if (immediate || doc.hidden || !visible || transition === 'none' || config.duration === 0) settle();
+    else morph.morphTo(target.ascii);
   }
   function stopCycle() {
     if (interval !== null) win.clearInterval(interval);
     interval = null;
   }
-  function startCycle() {
-    if (destroyed || !playing || frames.length < 2 || reducedMotion.matches || doc.hidden) return;
+  function syncPlayback() {
     stopCycle();
+    if (destroyed || !playing || frames.length < 2 || reducedMotion.matches || doc.hidden || !visible || hovered || focused) return;
     interval = win.setInterval(() => switchItem(index + 1), config.interval);
   }
   function next() {
     if (destroyed || frames.length < 2) return;
     switchItem(index + 1);
-    startCycle(); // Preserve the reference's restart even while hovered.
+    syncPlayback();
   }
   function onClick(event: MouseEvent) { event.preventDefault(); next(); }
   function onKeyDown(event: KeyboardEvent) {
-    if (!event.repeat && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); next(); }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (!event.repeat) {
+        if (event.key === ' ') spacePressed = true;
+        else next();
+      }
+    }
+  }
+  function onKeyUp(event: KeyboardEvent) {
+    if (event.key === ' ') {
+      event.preventDefault();
+      const activate = spacePressed && !event.repeat;
+      spacePressed = false;
+      if (activate) next();
+    }
+  }
+  function onEnter() { hovered = true; syncPlayback(); }
+  function onLeave() { hovered = false; syncPlayback(); }
+  function onFocus() { focused = true; syncPlayback(); }
+  function onBlur(event: FocusEvent) {
+    if (event.relatedTarget instanceof win.Node && container.contains(event.relatedTarget)) return;
+    focused = false;
+    spacePressed = false;
+    syncPlayback();
   }
   function onMotionChange() {
-    if (reducedMotion.matches) {
-      stopCycle();
-      morph.cancel();
-      display.textContent = frames[index].ascii;
-    } else startCycle();
+    if (reducedMotion.matches) settle();
+    syncPlayback();
   }
   function onVisibilityChange() {
-    if (doc.hidden) { stopCycle(); morph.cancel(); }
-    else startCycle(); // Preserve the original partial-frame resume behavior.
+    if (doc.hidden) { spacePressed = false; settle(); }
+    syncPlayback();
   }
+  const observer = config.pauseWhenOffscreen && typeof win.IntersectionObserver === 'function'
+    ? new win.IntersectionObserver(([entry]) => {
+        if (destroyed) return;
+        visible = entry.isIntersecting;
+        if (!visible) settle();
+        syncPlayback();
+      })
+    : null;
   if (interactive) {
     container.addEventListener('click', onClick);
     container.addEventListener('keydown', onKeyDown);
+    container.addEventListener('keyup', onKeyUp);
+    container.addEventListener('focusin', onFocus);
+    container.addEventListener('focusout', onBlur);
   }
   if (config.pauseOnHover) {
-    container.addEventListener('mouseenter', stopCycle);
-    container.addEventListener('mouseleave', startCycle);
+    container.addEventListener('mouseenter', onEnter);
+    container.addEventListener('mouseleave', onLeave);
   }
   reducedMotion.addEventListener('change', onMotionChange);
   doc.addEventListener('visibilitychange', onVisibilityChange);
   switchItem(0, !playing || frames.length < 2);
-  startCycle();
+  syncPlayback();
+  observer?.observe(container);
 
   return {
     next,
-    play() { if (!destroyed) { playing = true; startCycle(); } },
+    play() { if (!destroyed) { playing = true; syncPlayback(); } },
     pause() { playing = false; stopCycle(); },
     setTransition(value) {
       if (destroyed) return;
       transition = choice(value, ['shimmer', 'none'], 'transition');
-      if (transition === 'none') {
-        morph.cancel();
-        display.textContent = frames[index].ascii;
-      }
+      if (transition === 'none') settle();
     },
     show(nextIndex: number) {
       if (destroyed) return;
@@ -117,17 +152,21 @@ export function mountDisplay(host: HTMLElement, input: readonly GlyphFrame[], op
         throw new RangeError('Frame index is outside the sequence.');
       }
       switchItem(nextIndex);
-      startCycle();
+      syncPlayback();
     },
     destroy() {
       if (destroyed) return;
       destroyed = true;
       stopCycle();
       morph.cancel();
+      observer?.disconnect();
       container.removeEventListener('click', onClick);
       container.removeEventListener('keydown', onKeyDown);
-      container.removeEventListener('mouseenter', stopCycle);
-      container.removeEventListener('mouseleave', startCycle);
+      container.removeEventListener('keyup', onKeyUp);
+      container.removeEventListener('focusin', onFocus);
+      container.removeEventListener('focusout', onBlur);
+      container.removeEventListener('mouseenter', onEnter);
+      container.removeEventListener('mouseleave', onLeave);
       reducedMotion.removeEventListener('change', onMotionChange);
       doc.removeEventListener('visibilitychange', onVisibilityChange);
       container.remove();

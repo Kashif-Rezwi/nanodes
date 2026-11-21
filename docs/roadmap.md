@@ -46,19 +46,26 @@ Use native APIs with zero runtime or framework peer dependencies. Compile TypeSc
 - Manual pause persists across events; active visible transitions may finish. Phase 3 replaces the historical click/hover/hidden-tab quirks with composed pause reasons: focus/hover hold autoplay, hidden/offscreen displays settle and suspend, and resume waits a fresh interval. Glyph output and wave geometry retain the baseline.
 - Prepare text-only scenes without browser globals; request Canvas/Path2D only for SVG nodes. Validate grids and options before mounting, path command groups before sampling, and colors in the browser. Document errors instead of clipping or silently accepting unusable paths.
 - Use host-scoped font family/size and glow radius variables; keep frame color internal to the mounted display. Responsive sizing must preserve the default source dimensions.
-- Keep the website as the only playground, with text, SVG-only, and SVG + text modes, transition selection, and autoplay controls. Advanced text layout options remain in the API and its tests.
+- Keep the website as the only playground, with text, SVG-only, and SVG + text modes, transition selection, and autoplay controls. Advanced text layout options remain in the API.
 
 ### Verification and assets
 
-Compare all 25 original SVG/label frames, static hero output, transition steps, interruption, playback, reduced motion, visibility, and computed styles against independently generated source fixtures. Cover shared text playback, static mode, instant transitions, independent instances, and cleanup. Node tests verify pure preparation and browser-free imports.
+Keep automated verification focused on four generation checks:
 
-Use `npm run reference -- /absolute/path/to/portfolio`, then `npm run test:browser` and the comparison server at `http://127.0.0.1:4173` for local source comparisons; keep generated assets and screenshots in ignored `.reference/`. The original brand paths have unverified provenance, so the shareable playground uses three original geometric samples. Verify licensing before distributing any brand preset.
+- Text produces the expected block glyphs without browser globals.
+- Text nodes stack and sequences share a rectangular grid.
+- SVG paths produce distinct, non-empty silhouette grids using real Canvas/Path2D.
+- The original image preset combines a silhouette with its centered caption.
+
+Use Node for text and Chromium through development-only Playwright for SVGs. `npm test` builds the library and runs both suites. The website playground supports manual visual and interaction review. Detailed playback, accessibility, cleanup, cross-browser, source-comparison, and performance suites are outside the current automated scope.
+
+The public playground uses three original geometric samples. Keep portfolio brand paths out of the package and verify licensing before distributing any brand preset. Local portfolio comparison copies, screenshots, benchmark archives, and their generators are not retained.
 
 ## Library website
 
 The separate `site/` Next.js App Router app introduces Nanodes and demonstrates the real library. Statically render the landing content, metadata, and social card; keep browser rendering and controls inside small client components. The library owns offscreen scheduling and keyboard advance; the website reuses its two bounded SVG frame sets. Use local fonts, native CSS, accessible controls, reduced-motion preferences, and cleanup/offscreen pause for animated specimens. Render the static wordmark with pure text preparation; update preview playback without resampling or remounting, and provide an explicit hero pause/resume control.
 
-The site consumes the compiled local library through a TypeScript alias and has its own dependency manifest and lockfile. Next.js and React are website dependencies only. Keep the website playground and public library API independent, and use source-build instructions until npm publication. `npm run dev` starts the website; the separate `test:browser` command serves only the source-comparison fixtures. The README documents local commands and the production origin setting. Website work does not replace the hardening tasks below.
+The site consumes the compiled local library through a TypeScript alias and has its own dependency manifest and lockfile. Next.js and React are website dependencies only. Keep the website playground and public library API independent, and use source-build instructions until npm publication. `npm run dev` starts the website; the generation tests use a separate local fixture server. The README documents local commands and the production origin setting. Website work does not replace the hardening tasks below.
 
 ## Development phases
 
@@ -94,45 +101,30 @@ The site consumes the compiled local library through a TypeScript alias and has 
 ### API verification
 
 - Strict TypeScript/ESM output includes the exported node, scene, frame, and controller contracts.
-- Node checks cover multiline text, alignment, spacing, wrapping, overflow, unsupported glyph policies, shared grid composition, browser-free imports/preparation, and input boundaries.
-- Browser checks retain all 25 source SVG/label frames and hero output, original transitions and interactions, plus composed scenes, configurable timing/controls, manual pause persistence, independent instances, color/path/Canvas errors, and cleanup.
-- The motion fixture emits a `MediaQueryListEvent` carrying `matches`; compare both the source and extracted schedulers when reduced motion changes.
-- Settled image screenshots match the source at 1440 × 900 and 390 × 900 in Chrome for Testing 151 on macOS. Cross-browser verification and performance profiling remain in Phase 3.
+- The focused generation checks cover text, shared grid composition, SVG silhouettes, and the SVG/label preset.
 - Defaults and compatibility helpers preserve both portfolio uses; actual portfolio installation remains Phase 4. No brand assets or runtime dependencies are added.
 
-### Phase 3 — Measured hardening and testing
+### Phase 3 — Efficient rendering and focused verification
 
-**Goal:** improve reliability, accessibility, and demonstrated performance costs while retaining fidelity.
+**Goal:** retain reliable playback and efficient rendering with a small, maintainable generation test suite.
 
 **Scope and tasks**
 
-- Measure preparation, transition work, idle/offscreen activity, repeated mount/destroy behavior, and packed size before optimizing.
-- Reuse cached frames and simple buffers; avoid speculative infrastructure.
-- Resolve interruption and pause/resume rules for hover, hidden tabs, offscreen displays, manual pause, and reduced motion.
-- Verify keyboard interaction and meaningful text alternatives without announcing shimmer frames.
-- Test composition boundaries, invalid inputs, final frames, interruption, and cleanup.
-- Compare desktop/narrow layouts and behavior in Chrome, Firefox, and Safari; add CI for existing checks.
+- Preserve glyph sampling, wave geometry, the 320 ms shimmer, and the 3,400 ms default interval.
+- Reuse bounded demo frames and transition buffers; avoid speculative rendering infrastructure.
+- Keep hover/focus holds, persistent manual pause, and reduced-motion handling in the shared controller.
+- Settle hidden/offscreen displays and suspend their work; resuming waits a fresh interval.
+- Keep keyboard interaction and meaningful labels without announcing shimmer characters.
+- Run the four generation checks and website type/build checks in CI.
+- Review appearance and interactions manually in the website playground and during portfolio integration.
 
-**Complete when:** checks and visual comparisons pass; settled content has no idle animation loop; destruction removes owned work; performance claims include measurement and environment details.
+**Complete when:** generation checks and website type/build checks pass, the playground's visual treatment and controls are reviewed, and no extra fixtures or test-only runtime dependencies are required by the library.
 
-#### Execution plan
+#### Current verification scope
 
-1. **Measure:** record preparation time, transition callback cost, idle/hidden/offscreen work, repeated mount/destroy cleanup, and current/proposed artifact sizes before optimizing. Use the same machine, content, and browser for before/after results; keep raw runs in ignored verification output.
-2. **Harden:** retain glyph geometry, sampling, 320 ms shimmer, and 3,400 ms default interval. Hover and keyboard focus hold autoplay; manual pause survives every event. Hidden/offscreen displays cancel work and settle their selected target. Resume starts a fresh interval without advancing immediately. Manual selection still works while paused; reduced motion swaps immediately. Document these deliberate scheduling changes from the portfolio baseline.
-3. **Optimize measured work:** reuse bounded demo frames and transition buffers, avoiding unbounded caches or new rendering backends. Static instances must not allocate an animation loop.
-4. **Automate:** run the existing source comparisons plus independent keyboard, lifecycle, invalid-input, responsive, and accessibility checks in Chromium, Firefox, and WebKit. WebKit engine coverage must be distinguished from an actual Safari application check. CI must run without distributing portfolio brand assets.
-5. **Review:** verify exact settled output and representative visual parity, confirm no owned timers/listeners/observers survive destruction, publish measurements with environment and limitations, and update this roadmap before Phase 4.
+The earlier extraction and hardening work used broader source comparisons, lifecycle tests, accessibility checks, multiple browser engines, and local performance reports. Those tools and generated artifacts were removed in favor of the focused generation suite. Runtime optimizations and playback behavior remain in the library.
 
-#### Verification record — 2026-11-21
-
-- **Environment:** Apple M4, arm64, macOS/Darwin 27.0.0, Node 26.10.0; performance runs used headless Chromium 159.0.8154.6 at 1440 × 900. The unchanged baseline build and raw reports are local ignored `.reference/phase3-baseline/` and `.reference/phase3/` artifacts.
-- **Activity:** a 350 ms sample after offscreen suspension stabilized recorded 21 baseline animation-frame requests versus 0 after hardening. Both builds recorded 0 idle requests at rest. After 100 mount/destroy cycles, owned DOM, timers, and pending animation frames were 0; deterministic tests also check listener/observer release.
-- **CPU:** three SVGs prepared in a median 0.7 ms before and 0.6 ms after; transition callback p95 was 0.1 ms before and 0.2 ms after in these individual runs. At roughly 0.1 ms timer granularity, these small timings are noisy and do not establish a CPU speedup. Callback time excludes style, layout, paint, and GPU work. The targeted gain is eliminating offscreen work and repeated preparation, not a universal FPS claim.
-- **Size:** combined unminified runtime JS/CSS was 31,547 → 33,507 bytes; concatenated gzip for size comparison was 8,425 → 8,802 bytes. This is not a shipped bundle or npm download measurement. The current unconfigured repository pack measured about 61 KB and includes development/site files; Phase 5 still owns the distribution allowlist and clean-consumer installation checks.
-- **Coverage:** 13 Node checks and 36 browser tests pass across Chromium 159, Firefox 159, and WebKit 27.2. Portfolio comparisons check all 25 settled frames, original shimmer/interruption steps, and settled pixels at 1440 px and 390 px; only the documented scheduling quirks deliberately differ. Captures share a pixel origin to avoid fractional iframe positioning differences in Firefox. Keyboard semantics (including canceled Space presses), resource cleanup, frame ID 0 cancellation, composition limits, real IntersectionObserver behavior for single and multiple frames, and axe accessibility checks are covered. Runtime/API checks use synthetic content and run independently of the optional portfolio fixtures. Measurement regressions cover occupied ports and server shutdown; the tool waits for its own server to report its listening port.
-- **Website:** browser scheduling now belongs to the library; the website caches only its two fixed SVG frame sets. Type checking and the production static export pass. Runtime and test dependencies remain separate; no library runtime dependency was added.
-- **CI:** `.github/workflows/verify.yml` installs development tools, checks out the pinned portfolio reference into ignored local fixtures, runs Node/browser checks, and typechecks/builds the website. Browser traces are local ignored test outputs; no brand preset is added to the package. The hosted workflow has not been run because these changes have not been pushed.
-- **Open browser check:** native Safari's driver still reports that “Allow remote automation” is disabled. Automated WebKit coverage passes, but it is not a native Safari or iOS hardware verification. Complete the native Safari check before closing the Phase 3 review and moving to Phase 4.
+Automated coverage is limited to the four generation checks above. Chromium runs the SVG tests; wider browser compatibility and interaction behavior need manual review before making support claims. The CI workflow installs the test browser, runs `npm test`, and checks/builds the website without a portfolio checkout.
 
 ### Phase 4 — Portfolio integration
 

@@ -70,9 +70,20 @@ Options retain the original defaults:
 - `autoplay: boolean` — default true; single items never autoplay.
 - `transition: 'shimmer' | 'none'` — default shimmer.
 - `duration` and `interval` — milliseconds, defaults 320 and 3400. Zero duration swaps glyphs immediately; the interval must be positive.
-- `pauseOnHover` and `advanceOnClick` — default true. Disabling click advance also removes button semantics; programmatic selection still works.
+- `pauseOnHover` and `advanceOnClick` — default true. Disabling click advance also removes button semantics; programmatic selection still works. Focus on an interactive display also holds autoplay.
+- `pauseWhenOffscreen` — default true. IntersectionObserver suspends fully offscreen displays; set false when the host manages visibility. Browsers without IntersectionObserver still honor document visibility and manual pause.
 
-The controller provides `next()`, `show(index)`, `play()`, `pause()`, `setTransition(transition)`, and `destroy()`. Changing the transition preserves the selected frame and playback timer; choosing `none` also settles an active morph immediately. Manual pause stops cycling and lets an active morph finish; it persists across manual advance, hover, visibility, and motion changes. Play requests cycling but still respects reduced motion and hidden tabs. The default click/selection behavior restarts the cycle interval even while hovered, matching the source. Hiding the tab cancels active work and retains the partial frame until another selection. Destroy is idempotent and all later controls are inert. Frames and initial options are snapshotted on mount. Use the controller for playback and transition changes; remount to replace content or other configuration.
+The controller provides `next()`, `show(index)`, `play()`, `pause()`, `setTransition(transition)`, and `destroy()`. Transition changes preserve selection and the playback deadline; choosing `none` settles an active morph immediately. Frames and initial options are snapshotted on mount. Remount to replace content or other configuration.
+
+Playback follows these rules:
+
+- Manual pause persists across selection, hover, focus, visibility, and motion changes; an active visible morph may finish.
+- Hover or focus holds autoplay even after a manual advance. Leaving resumes only when no other pause reason applies. Enter advances on press; Space advances on release after a press on that display. Losing focus or hiding the document cancels that press.
+- Hidden/offscreen displays cancel their work and settle the selected target. Manual selection there is immediate. Returning waits a fresh interval instead of showing a partial shimmer.
+- Reduced motion settles transitions, disables autoplay, and removes CSS hover enlargement/transitions. Hosts should offer a pause control for automatic displays; the website includes one.
+- Destroy removes owned DOM, timers, animation frames, listeners, and observers; repeated destruction and later controls are inert.
+
+These scheduling rules deliberately harden the portfolio's hover/hidden-tab quirks; glyph sampling, settled output, shimmer geometry, and default timing remain unchanged.
 
 ## Styling and errors
 
@@ -84,7 +95,7 @@ Grid dimensions are integers from 1–512. Glyph spacing, line gaps, and node ga
 
 The landing page and playground live in `site/`, an independent Next.js App Router app. Its website dependencies stay separate from the library. The site consumes the compiled local library and self-hosts its fonts.
 
-`npm run dev` starts the website, `npm run site:check` checks its types, and `npm run site:build` generates a static export in `site/out/`. These commands build the library first, updating `dist/` in place so checks can run while the website preview is open.
+`npm run dev` starts the website, `npm run site:check` checks its types, and `npm run site:build` generates a static export in `site/out/`. These commands build the library first, updating `dist/` in place so checks can run while the website preview is open. Next.js watches website files; after editing library files in `src/`, run `npm run build` to refresh the compiled library.
 
 Before deploying the export, set `SITE_URL` to the real public origin so social image URLs use the production domain. The local default is `http://localhost:3000`. The site uses Space Grotesk and DM Sans from Fontsource's OFL-licensed font packages; npm publication of the library is a separate roadmap task.
 
@@ -98,6 +109,18 @@ npm run test:browser
 ```
 
 The test command builds the library and starts the comparison server. Open [the comparison](http://127.0.0.1:4173) and select **Run deterministic comparison**. Reload before rerunning; cleanup checks destroy the instances. Reference assets stay in ignored `.reference/`; brand paths are not distributed presets. Browser assertions are separate from `npm test`.
+
+Automated verification uses development-only Playwright and axe-core dependencies; the library keeps zero runtime dependencies:
+
+```sh
+npx playwright install chromium firefox webkit
+npm run verify:browser
+npm run measure
+```
+
+`verify:browser` starts its fixture server and runs Chromium, Firefox, and WebKit checks. The runtime and API suites need no portfolio fixtures. Generate the pinned reference fixtures to include source parity tests; CI does this automatically. WebKit coverage is not a claim of testing the Safari application or iOS hardware.
+
+`measure` starts its own server on an available port and records local timings, activity, cleanup, runtime bytes/gzip, and the current repository pack size in ignored `.reference/phase3/current.json`. Set `PORT` to request a specific port; an occupied port fails instead of measuring another server. Callback timings exclude layout/paint; packed repository size is not the final npm release size. Large grids cost more per animation frame; no universal frame-rate guarantee is made.
 
 See [the roadmap](docs/roadmap.md) for the development plan. Host entrance effects, background dots, and portfolio integration remain separate from the library.
 

@@ -2,6 +2,12 @@
 
 The development plan, technical boundaries, and completion criteria for Nanodes.
 
+## Current release
+
+[`nanodes@0.1.1`](https://www.npmjs.com/package/nanodes/v/0.1.1) is published and tagged `latest`. The matching [GitHub release](https://github.com/Kashif-Rezwi/nanodes/releases/tag/v0.1.1) and [website](https://nanodes.vercel.app) are live. The npm README, homepage and description are verified against the registry. This documentation-only patch retains the runtime, CSS, declarations and API from `0.1.0`.
+
+Earlier release records below describe the state at that release, not the current npm tag. `main` contains the current release; an older branch or version-specific URL can show an earlier version.
+
 ## Workflow
 
 **Plan → Implement → Review.** Work through one phase at a time and verify its completion criteria before expanding the scope.
@@ -180,9 +186,9 @@ Automated coverage is limited to the four generation checks above. Chromium runs
 5. After maintainer review and npm login, publish the exact reviewed tarball, verify a clean registry installation and record the release version. Commit/tag/push remain maintainer actions under the standing instruction.
 6. Only after registry verification, change the portfolio from its existing `0.0.0` vendor tarball to the exact published version, remove the vendor archive, update its lockfile and rebuild/review before deployment.
 
-#### Release record — 2026-11-21
+#### Initial release record — 0.1.0 (2026-11-21)
 
-- **Published:** [`nanodes@0.1.0`](https://www.npmjs.com/package/nanodes/v/0.1.0) under the authenticated `kashif-rezwi` account, with `latest` pointing to `0.1.0`. The initial rejected token was replaced through npm's browser login; npm's separate publishing verification was completed by the owner. No credentials are stored in repository files.
+- **Published:** [`nanodes@0.1.0`](https://www.npmjs.com/package/nanodes/v/0.1.0) under the authenticated `kashif-rezwi` account, with `latest` initially pointing to `0.1.0`. The initial rejected token was replaced through npm's browser login; npm's separate publishing verification was completed by the owner. No credentials are stored in repository files.
 - **Artifact:** 26 files, 17,527 compressed bytes. README and changelog were finalized before publication. The final runtime, declarations and CSS match the tested candidate byte for byte. Registry integrity and a clean registry install match the exact published tarball: `sha512-HAyxOhIOeqdy7DJUkuUZwrthkP5nBNkwb5I1V0V6G6hyoEvhYuOZf0Orf96JxWF4fYnVxtEm6Bwr5dgKqZ6HqA==`.
 - **Contents:** compiled ESM, declarations, CSS, changelog, lifecycle guide and standard package metadata/README/license only. No runtime/peer dependencies, portfolio brand paths, website assets or test tools ship. `prepack` builds automatically; CI now also runs a non-publishing pack dry-run.
 - **Checks:** all four permanent generation tests, website type checking and the production static build pass. The permanent test suite remains unchanged. Clean ESM imports, browser-free text/composition, CSS resolution and public TypeScript contracts work with the actual package.
@@ -200,7 +206,7 @@ The registry release and first consumer are verified. The release changes were s
 - Install the root and website lockfiles, then build the library before the website. Serve only `site/out/`; no server runtime or framework dependency is added to the library.
 - Connect `Kashif-Rezwi/nanodes` with `main` as production and feature branches as previews. Set `SITE_URL=https://nanodes.vercel.app` for canonical, social, robots and sitemap URLs.
 - Keep the existing library-generated wordmark and block-letter N. The social card uses the same glyph rows; GitHub and npm README headers use that hosted image. Keep description, homepage, API and install links consistent across all three platforms.
-- Publish `0.1.1` to refresh npm's README and homepage; npm requires a new version for README updates. Library ESM, CSS, declarations and API remain identical to `0.1.0`.
+- Published `0.1.1` to refresh npm's README and homepage; npm requires a new version for README updates. A clean registry installation, the expected artifact integrity, updated README and `latest: 0.1.1` were verified. Library ESM, CSS, declarations and API remain identical to `0.1.0`.
 
 **Review criteria:** generation tests and website checks pass; the public site loads without login; text/SVG/combined previews and click advance work; icon/social image/canonical links resolve; the npm tarball has no unintended files or runtime changes.
 

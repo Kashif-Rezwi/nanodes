@@ -24,7 +24,8 @@ export const shapes = [
 ] as const;
 
 export const example = `import { prepareFrames, mountDisplay }
-  from './dist/index.js';
+  from 'nanodes';
+import 'nanodes/styles.css';
 
 const frames = prepareFrames([
   { label: 'Hello', nodes: [{ type: 'text', text: 'HELLO' }] },
@@ -40,7 +41,4 @@ const display = mountDisplay(
 // When your component unmounts:
 // display.destroy();`;
 
-export const setupCommands = `git clone https://github.com/Kashif-Rezwi/nanodes.git
-cd nanodes
-npm ci
-npm run build`;
+export const setupCommands = `npm install nanodes`;

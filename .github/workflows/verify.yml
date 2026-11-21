@@ -27,5 +27,6 @@ jobs:
       - name: Install test browser
         run: npx playwright install --with-deps chromium
       - run: npm test
+      - run: npm pack --dry-run
       - run: npm run site:check
       - run: npm run site:build

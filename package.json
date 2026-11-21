@@ -30,9 +30,13 @@
     "reference": "node scripts/reference.mjs",
     "site:build": "npm --prefix site run build",
     "site:check": "npm --prefix site run typecheck",
-    "test:browser": "npm run build && node scripts/serve.mjs"
+    "test:browser": "npm run build && node scripts/serve.mjs",
+    "verify:browser": "npm run build && playwright test",
+    "measure": "npm run build && node scripts/measure.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "axe-core": "4.14.1",
     "typescript": "7.0.2"
   }
 }

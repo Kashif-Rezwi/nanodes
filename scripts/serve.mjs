@@ -4,7 +4,7 @@ import { resolve, extname, sep } from 'node:path';
 
 const root = resolve('.');
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.png': 'image/png' };
-createServer(async (request, response) => {
+const server = createServer(async (request, response) => {
   let pathname;
   try {
     pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
@@ -18,4 +18,10 @@ createServer(async (request, response) => {
     const content = await readFile(file);
     response.writeHead(200, { 'Content-Type': types[extname(file)] || 'text/plain', 'Cache-Control': 'no-store' }).end(content);
   } catch { response.writeHead(404).end('Not found'); }
-}).listen(Number(process.env.PORT || 4173), '127.0.0.1', () => console.log('Nanodes fixtures: http://127.0.0.1:' + (process.env.PORT || 4173)));
+});
+if (process.send) process.on('disconnect', () => server.close());
+server.listen(Number(process.env.PORT || 4173), '127.0.0.1', () => {
+  const port = server.address().port;
+  console.log('Nanodes fixtures: http://127.0.0.1:' + port);
+  process.send?.({ type: 'listening', port });
+});

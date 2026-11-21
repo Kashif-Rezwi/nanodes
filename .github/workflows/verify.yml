@@ -1,0 +1,40 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            site/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix site
+      - name: Install test browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Read the pinned portfolio reference
+        uses: actions/checkout@v7
+        with:
+          repository: Kashif-Rezwi/Kashif-Rezwi.github.io
+          ref: cb8d321297700866709cedb96fc1e8df362e8212
+          path: .reference/portfolio
+          persist-credentials: false
+      - run: npm run reference -- .reference/portfolio
+      - run: npm test
+      - run: npm run site:check
+      - run: npm run site:build
+      - run: npm run verify:browser

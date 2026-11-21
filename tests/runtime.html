@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nanodes runtime tests</title>
+  <link rel="stylesheet" href="/tests/fixture.css">
+  <link rel="stylesheet" href="/dist/styles.css">
+  <script src="/tests/clock.js"></script>
+</head>
+<body>
+  <main id="host" aria-label="Test display"></main>
+  <script type="module">window.nanodes = await import('/dist/index.js');</script>
+</body>
+</html>

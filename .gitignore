@@ -22,3 +22,7 @@ Thumbs.db
 
 # Local portfolio references and browser verification artifacts
 .reference/
+
+# Automated browser verification
+test-results/
+playwright-report/

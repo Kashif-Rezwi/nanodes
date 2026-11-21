@@ -1,7 +1,7 @@
 {
   "name": "nanodes",
-  "version": "0.1.0",
-  "description": "Dependency-free animated glyph text and images for the web.",
+  "version": "0.1.1",
+  "description": "Animated glyph text and SVG silhouettes for the web. Zero runtime dependencies.",
   "type": "module",
   "license": "MIT",
   "author": "Kashif Rezwi",
@@ -9,7 +9,7 @@
     "type": "git",
     "url": "git+https://github.com/Kashif-Rezwi/nanodes.git"
   },
-  "homepage": "https://github.com/Kashif-Rezwi/nanodes#readme",
+  "homepage": "https://nanodes.vercel.app",
   "bugs": {
     "url": "https://github.com/Kashif-Rezwi/nanodes/issues"
   },

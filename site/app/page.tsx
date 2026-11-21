@@ -3,7 +3,7 @@ import { Mark } from "@/components/brand-mark";
 import { GlyphDisplay } from "@/components/glyph-display";
 import { Playground } from "@/components/playground";
 import { CodeBlock } from "@/components/code-block";
-import { docs, example, repository, setupCommands } from "@/lib/content";
+import { docs, example, packageUrl, repository, setupCommands } from "@/lib/content";
 
 function ArrowRight() {
   return (
@@ -206,6 +206,7 @@ export default function Home() {
           </p>
           <nav className="footer-links" aria-label="Footer navigation">
             <a href={docs}>Docs</a>
+            <a href={packageUrl}>npm</a>
             <a href={repository}>GitHub</a>
             <a href={`${repository}/blob/main/LICENSE`}>MIT License</a>
           </nav>

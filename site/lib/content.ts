@@ -1,5 +1,10 @@
+import { homepage, description } from "../../package.json";
+
+export const siteUrl = process.env.SITE_URL || homepage;
+export { description };
 export const repository = "https://github.com/Kashif-Rezwi/nanodes";
 export const docs = `${repository}#readme`;
+export const packageUrl = "https://www.npmjs.com/package/nanodes";
 
 // Original, filled silhouettes in the library's 24-unit sampling space.
 export const shapes = [

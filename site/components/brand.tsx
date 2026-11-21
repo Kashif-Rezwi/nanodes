@@ -14,3 +14,30 @@ export function Brand() {
     </a>
   );
 }
+
+// The same glyph rows as the live wordmark, rendered as vectors for social cards.
+export function BrandWordmark() {
+  return (
+    <svg
+      width="348"
+      height="42"
+      viewBox="0 0 232 28"
+      fill="#c5baff"
+      aria-hidden="true"
+    >
+      {wordmark.split("\n").flatMap((row, y) =>
+        [...row].map((glyph, x) =>
+          glyph === " " ? null : (
+            <rect
+              key={`${x}-${y}`}
+              x={x * 8}
+              y={y * 14 + (glyph === "▄" ? 7 : 0)}
+              width="8"
+              height={glyph === "█" ? 14 : 7}
+            />
+          ),
+        ),
+      )}
+    </svg>
+  );
+}

@@ -1,6 +1,0 @@
-<!doctype html><html><meta charset="utf-8"><link rel="stylesheet" href="/tests/fixture.css"><link rel="stylesheet" href="/dist/styles.css"><script src="/tests/clock.js"></script><body><div id="contact"></div><script type="module">
-import { mountDisplay, prepareImageFrames, prepareTextFrame, prepareFrames } from '/dist/index.js';
-const items = await fetch('/.reference/items.json').then(response => { if (!response.ok) throw new Error('Generate local references first.'); return response.json(); });
-const frames = prepareImageFrames(items);
-window.extracted = { frames, controller: mountDisplay(document.getElementById('contact'), frames), mountDisplay, prepareTextFrame, prepareFrames, prepareImageFrames };
-</script></body></html>

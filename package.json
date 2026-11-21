@@ -25,18 +25,13 @@
   ],
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs && playwright test",
     "dev": "npm --prefix site run dev",
-    "reference": "node scripts/reference.mjs",
     "site:build": "npm --prefix site run build",
-    "site:check": "npm --prefix site run typecheck",
-    "test:browser": "npm run build && node scripts/serve.mjs",
-    "verify:browser": "npm run build && playwright test",
-    "measure": "npm run build && node scripts/measure.mjs"
+    "site:check": "npm --prefix site run typecheck"
   },
   "devDependencies": {
     "@playwright/test": "1.65.1",
-    "axe-core": "4.14.1",
     "typescript": "7.0.2"
   }
 }

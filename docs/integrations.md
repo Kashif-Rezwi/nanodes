@@ -1,4 +1,6 @@
-# Framework integration
+# Nanodes framework integration
+
+[Website](https://nanodes.vercel.app) · [Playground](https://nanodes.vercel.app/#playground) · [API](https://github.com/Kashif-Rezwi/nanodes#prepare-content)
 
 Nanodes owns the DOM inside an empty host. Mount it after the host exists, and destroy it when the component is removed. Import `nanodes/styles.css` once in your app’s global CSS entry point. These examples use static content; remount to replace frames, or use the controller to change playback and transition mode.
 

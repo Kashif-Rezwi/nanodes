@@ -190,9 +190,19 @@ Automated coverage is limited to the four generation checks above. Chromium runs
 - **Portfolio:** the owner committed the Phase 4 integration as `fe13b47`. The current `feat/nanodes-integration` working tree now pins registry version `0.1.0` and its SHA-512 in the lockfile; the vendor archive is removed. Production build, unchanged static hero output, click advance, no-outline/no-pause appearance, and 19 standard/30 glass contrast checks pass. Its release dependency changes remain uncommitted.
 - **Website:** public installation examples now use `npm install nanodes` and `nanodes/styles.css` rather than source-build setup.
 
-The registry release and first consumer are verified. Git commits, a matching `v0.1.0` tag, pushes and production deployment remain maintainer actions under the standing instruction; none were performed by the agent. For subsequent releases, update the version/changelog, repeat the documented checks and inspect the final tarball before publishing a new version; `0.1.0` is already published and must not be republished.
+The registry release and first consumer are verified. The release changes were subsequently committed as `b1c9b84` and merged into `main` through [PR #1](https://github.com/Kashif-Rezwi/nanodes/pull/1), with CI passing. Portfolio publication remains separate from the library website. For subsequent releases, update the version/changelog, repeat the documented checks and inspect the final tarball before publishing a new version; `0.1.0` is already published and must not be republished.
 
 **Complete when:** registry consumers receive working exports, types, and CSS; no unintended files or runtime dependencies ship; the portfolio can use the release.
+
+## Public website and documentation
+
+- Deploy the Next.js static export on Vercel at [nanodes.vercel.app](https://nanodes.vercel.app), using the repository-root `vercel.json` and Node.js 24, matching CI.
+- Install the root and website lockfiles, then build the library before the website. Serve only `site/out/`; no server runtime or framework dependency is added to the library.
+- Connect `Kashif-Rezwi/nanodes` with `main` as production and feature branches as previews. Set `SITE_URL=https://nanodes.vercel.app` for canonical, social, robots and sitemap URLs.
+- Keep the existing library-generated wordmark and block-letter N. The social card uses the same glyph rows; GitHub and npm README headers use that hosted image. Keep description, homepage, API and install links consistent across all three platforms.
+- Publish `0.1.1` to refresh npm's README and homepage; npm requires a new version for README updates. Library ESM, CSS, declarations and API remain identical to `0.1.0`.
+
+**Review criteria:** generation tests and website checks pass; the public site loads without login; text/SVG/combined previews and click advance work; icon/social image/canonical links resolve; the npm tarball has no unintended files or runtime changes.
 
 ## Later scope
 

@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { Mark } from "@/components/brand-mark";
+import { BrandWordmark } from "@/components/brand";
 export const dynamic = "force-static";
 export const alt = "Nanodes — Small glyphs. Big personality.";
 export const size = { width: 1200, height: 630 };
@@ -28,8 +28,7 @@ export default function Image() {
           marginBottom: 40,
         }}
       >
-        <Mark size={44} />
-        NANODES
+        <BrandWordmark />
       </div>
       <div style={{ fontSize: 88, letterSpacing: -5, display: "flex" }}>
         Small glyphs.

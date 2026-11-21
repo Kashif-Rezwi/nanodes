@@ -1,6 +1,10 @@
 # Nanodes
 
-**Animated glyph text and SVG silhouettes for the web, with zero runtime dependencies.**
+[![Nanodes — Small glyphs. Big personality.](https://nanodes.vercel.app/opengraph-image)](https://nanodes.vercel.app)
+
+**Animated glyph text and SVG silhouettes for the web. Zero runtime dependencies.**
+
+[Website](https://nanodes.vercel.app) · [Playground](https://nanodes.vercel.app/#playground) · [npm](https://www.npmjs.com/package/nanodes)
 
 Nanodes turns text and SVG paths into block-glyph displays with diagonal shimmer transitions. The visual treatment comes from [Kashif Rezwi's portfolio](https://kashif-rezwi.github.io/).
 
@@ -24,13 +28,7 @@ ES modules only; no runtime or framework peer dependencies. Use a bundler that r
 
 ## Playground
 
-```sh
-npm ci
-npm ci --prefix site
-npm run dev
-```
-
-Use a current Node.js LTS release and npm. Open [the website playground](http://127.0.0.1:3000/#playground) to try text, SVG shapes, and SVG + text, with shimmer/instant transitions and autoplay controls. The website is the only playground; its geometric samples stay separate from the library.
+Try [the live playground](https://nanodes.vercel.app/#playground) with text, SVG shapes, and SVG + text, shimmer/instant transitions, and autoplay controls. Its geometric samples stay separate from the library.
 
 ## Prepare content
 
@@ -71,7 +69,7 @@ Both the default hero helper and text-only `prepareFrames` work during SSR. SVG 
 
 ## Framework integration
 
-Mount into an empty host after it exists in the browser and call `destroy()` on component removal. React/Next.js, Vue, Svelte, and Astro lifecycle examples are in [the integration guide](docs/integrations.md). Keep browser-only mounting and SVG sampling out of server-rendering code; pure text preparation supports SSR.
+Mount into an empty host after it exists in the browser and call `destroy()` on component removal. React/Next.js, Vue, Svelte, and Astro lifecycle examples are in [the integration guide](https://github.com/Kashif-Rezwi/nanodes/blob/main/docs/integrations.md). Keep browser-only mounting and SVG sampling out of server-rendering code; pure text preparation supports SSR.
 
 ## Local package integration
 
@@ -85,7 +83,7 @@ npm pack
 `prepack` builds the library automatically. In another project, install the generated artifact:
 
 ```sh
-npm install /absolute/path/to/nanodes-0.1.0.tgz
+npm install /absolute/path/to/nanodes-0.1.1.tgz
 ```
 
 Import from `nanodes` and `nanodes/styles.css` as shown above. The tarball contains compiled ES modules, declarations, CSS, and package documentation. The portfolio is the first integration of the extracted text and SVG treatment.
@@ -121,13 +119,23 @@ Set these on the host: `--nanodes-font-mono`, `--nanodes-font-size` (responsive 
 
 Grid dimensions are integers from 1–512. Glyph spacing, line gaps, and node gaps allow 0–512. Empty text intentionally produces blank glyph rows; empty sequences/nodes and blank accessible labels are errors. Unsupported glyphs become spaces unless strict mode is selected. Overflows, invalid dimensions/options/selections, malformed path command groups, and SVG paths with no filled area in the sampling space fail explicitly. Colors are validated when mounted. Missing browser/Canvas capabilities fail without attaching a display. The path sampler is not a general SVG renderer.
 
-## Next.js website
+## Website development
 
 The landing page and playground live in `site/`, an independent Next.js App Router app. Its website dependencies stay separate from the library. The site consumes the compiled local library and self-hosts its fonts.
 
+```sh
+npm ci
+npm ci --prefix site
+npm run dev
+```
+
+Use Node.js 24 LTS and npm, then open [localhost:3000](http://localhost:3000). Production and CI use Node.js 24.
+
 `npm run dev` starts the website, `npm run site:check` checks its types, and `npm run site:build` generates a static export in `site/out/`. These commands build the library first, updating `dist/` in place so checks can run while the website preview is open. Next.js watches website files; after editing library files in `src/`, run `npm run build` to refresh the compiled library.
 
-Before deploying the export, set `SITE_URL` to the real public origin so social image URLs use the production domain. The local default is `http://localhost:3000`. The site uses Space Grotesk and DM Sans from Fontsource's OFL-licensed font packages; library publication is tracked separately in the roadmap.
+Vercel deploys the static export at [nanodes.vercel.app](https://nanodes.vercel.app). The project uses the repository root and the install/build/output settings in `vercel.json`: install both lockfiles, build the library and website, then serve `site/out/`. Pushes to `main` deploy production; other branches create previews. `SITE_URL` sets the canonical origin and defaults to the package homepage. Keep it set to the production URL for both production and preview builds.
+
+The README, npm page, and link previews share the website’s glyph wordmark/social image; the favicon and inline mark use the same block-letter N. The site self-hosts Space Grotesk and DM Sans from Fontsource’s OFL-licensed packages. Website assets are not included in the npm tarball.
 
 ## Verification and development
 
@@ -142,8 +150,8 @@ npm test
 
 CI runs these checks plus website type checking and the production build. Use the website playground to review animation and interaction behavior manually; the automated suite covers generation only.
 
-See [the roadmap](docs/roadmap.md) for the development plan. Host entrance effects, background dots, and portfolio integration remain separate from the library.
+See [the roadmap](https://github.com/Kashif-Rezwi/nanodes/blob/main/docs/roadmap.md) for the development plan. Host entrance effects, background dots, and portfolio integration remain separate from the library.
 
 ## License
 
-[MIT](LICENSE). The package contains the portfolio-derived block alphabet and glyph renderer; portfolio technology-brand paths and website font assets are not distributed. Consumers supply and license their own SVG paths.
+[MIT](https://github.com/Kashif-Rezwi/nanodes/blob/main/LICENSE). The package contains the portfolio-derived block alphabet and glyph renderer; portfolio technology-brand paths and website font assets are not distributed. Consumers supply and license their own SVG paths.

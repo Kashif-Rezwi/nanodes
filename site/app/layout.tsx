@@ -4,6 +4,7 @@ import { ColorSchemeScript } from "@mantine/core";
 import { Providers } from "@/components/providers";
 import "@mantine/core/styles.layer.css";
 import "./globals.css";
+import { description, siteUrl } from "@/lib/content";
 
 const display = localFont({
   src: "../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2",
@@ -19,16 +20,15 @@ const body = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: process.env.SITE_URL
-    ? new URL(process.env.SITE_URL)
-    : new URL("http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
+  alternates: { canonical: "/" },
   title: "Nanodes",
-  description:
-    "Bring text and SVGs to life with block glyphs and shimmer transitions. A framework-agnostic animation library with zero runtime dependencies.",
+  description,
   openGraph: {
     title: "Nanodes — Small glyphs. Big personality.",
     description:
       "Text, shapes, and a little motion. Explore the live glyph playground.",
+    url: "/",
     type: "website",
     locale: "en_US",
     siteName: "Nanodes",

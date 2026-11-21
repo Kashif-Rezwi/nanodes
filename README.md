@@ -101,26 +101,16 @@ Before deploying the export, set `SITE_URL` to the real public origin so social 
 
 ## Verification and development
 
-`npm test` compiles the library and runs the Node tests. To compare against the original portfolio, use a clone containing the [baseline commit](https://github.com/Kashif-Rezwi/Kashif-Rezwi.github.io/commit/cb8d321297700866709cedb96fc1e8df362e8212):
+After installing dependencies, install the test browser once:
 
 ```sh
-npm run reference -- /absolute/path/to/portfolio
-npm run test:browser
+npx playwright install chromium
+npm test
 ```
 
-The test command builds the library and starts the comparison server. Open [the comparison](http://127.0.0.1:4173) and select **Run deterministic comparison**. Reload before rerunning; cleanup checks destroy the instances. Reference assets stay in ignored `.reference/`; brand paths are not distributed presets. Browser assertions are separate from `npm test`.
+`npm test` builds the library and runs four focused generation checks: block text, text composition, SVG silhouettes, and SVG with a caption. Text runs in Node; SVG checks use real Chromium Canvas/Path2D through the development-only Playwright dependency. No portfolio checkout or generated reference assets are needed. The library keeps zero runtime dependencies.
 
-Automated verification uses development-only Playwright and axe-core dependencies; the library keeps zero runtime dependencies:
-
-```sh
-npx playwright install chromium firefox webkit
-npm run verify:browser
-npm run measure
-```
-
-`verify:browser` starts its fixture server and runs Chromium, Firefox, and WebKit checks. The runtime and API suites need no portfolio fixtures. Generate the pinned reference fixtures to include source parity tests; CI does this automatically. WebKit coverage is not a claim of testing the Safari application or iOS hardware.
-
-`measure` starts its own server on an available port and records local timings, activity, cleanup, runtime bytes/gzip, and the current repository pack size in ignored `.reference/phase3/current.json`. Set `PORT` to request a specific port; an occupied port fails instead of measuring another server. Callback timings exclude layout/paint; packed repository size is not the final npm release size. Large grids cost more per animation frame; no universal frame-rate guarantee is made.
+CI runs these checks plus website type checking and the production build. Use the website playground to review animation and interaction behavior manually; the automated suite covers generation only.
 
 See [the roadmap](docs/roadmap.md) for the development plan. Host entrance effects, background dots, and portfolio integration remain separate from the library.
 

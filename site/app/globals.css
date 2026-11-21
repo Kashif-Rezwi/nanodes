@@ -551,7 +551,6 @@ pre {
 .glyph-hero .glyph-surface {
   min-height: 335px;
   padding: 20px 28px 12px;
-  cursor: pointer;
 }
 .glyph-pause {
   position: absolute;

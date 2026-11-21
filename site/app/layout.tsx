@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   metadataBase: process.env.SITE_URL
     ? new URL(process.env.SITE_URL)
     : new URL("http://localhost:3000"),
-  title: "Nanodes — Small glyphs. Big personality.",
+  title: "Nanodes",
   description:
     "Bring text and SVGs to life with block glyphs and shimmer transitions. A framework-agnostic animation library with zero runtime dependencies.",
   openGraph: {

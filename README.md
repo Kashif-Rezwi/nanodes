@@ -46,7 +46,7 @@ const display = mountDisplay(document.querySelector('#display'), frames, {
 // Call display.destroy() when the host is removed.
 ```
 
-Include `dist/styles.css` separately. The host supplies layout and available width. These are local build paths; npm exports are part of release preparation.
+Include `dist/styles.css` separately. The host supplies layout and available width. These are local build paths. Packed consumers import from `nanodes` and load `nanodes/styles.css`.
 
 - A scene has a non-empty accessible `label`, optional `color` (default `#a9c8ff`), and one or more nodes.
 - Text nodes contain `type: 'text'` and `text`. Options: `align` (`left`, `center`, `right`), `letterSpacing` (default 1 glyph column), `lineGap` (default 1 glyph row), `wrap` (default false), and `unsupported` (`blank` or `error`, default `blank`). Wrapping breaks at glyph boundaries, including inside words; it never clips part of a glyph.
@@ -59,6 +59,24 @@ Two helpers preserve the original portfolio treatment:
 - `prepareImageFrames(items, document?)` accepts `{ name, svg, color, scaleModifier? }` items and returns the original 38 × 17 SVG/label frames using the shared composer. `svg` is path data, not markup.
 
 Both the default hero helper and text-only `prepareFrames` work during SSR. SVG preparation requires a browser document (optional third argument to `prepareFrames`); importing the modules requires no browser globals. For static markup, place escaped glyph output in a `<pre aria-hidden="true">` with a meaningful plain-text equivalent. Use the matching `.nanodes-text` / `.nanodes-text-art` CSS classes for the original text treatment.
+
+## Local package integration
+
+Build and pack before installing Nanodes in another project:
+
+```sh
+npm run build
+npm pack
+```
+
+In the consumer, install the generated `nanodes-0.0.0.tgz` and use the public imports:
+
+```js
+import { prepareFrames, prepareTextFrame, mountDisplay } from 'nanodes';
+import 'nanodes/styles.css';
+```
+
+The tarball contains compiled ES modules, TypeScript declarations, CSS, and standard package documentation. It has no runtime dependencies. Version `0.0.0` remains private; registry publication is a separate step. The portfolio installs its local copy from `vendor/nanodes-0.0.0.tgz`.
 
 ## Display and playback
 

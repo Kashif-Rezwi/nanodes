@@ -138,6 +138,23 @@ Automated coverage is limited to the four generation checks above. Chromium runs
 - Verify the production Astro build, responsive appearance, themes, interactions, and reduced motion.
 - Remove duplication after parity verification and record the integration results.
 
+#### Integration plan
+
+1. Add the minimal ESM/type/CSS exports and a `dist` file allowlist required to consume a real tarball. Keep version `0.0.0` and `private: true`; publication remains Phase 5.
+2. Pack the library into the portfolio's `vendor/` directory and install that relative file dependency on `feat/nanodes-integration`, based on portfolio `cb8d321`. Avoid workspace links so the installed artifact is the one being verified.
+3. Replace the Contact section's sampler, alphabet, transition, playback, and art CSS with Nanodes. Keep its 25 technology paths, colors, order, and scale modifiers in the portfolio. Use a processed Astro script for package imports and the shared controller for interaction.
+4. Render the hero with `prepareTextFrame` on the server and remove its duplicated alphabet. Map the portfolio's existing font/accent variables into the library CSS; retain host entrance and dot-field effects.
+5. Run the focused generation suite, inspect the package contents, build the portfolio, and review desktop/mobile, dark/light, keyboard, pause, and reduced-motion behavior. Compare the pre-change output without restoring permanent comparison tooling or fixtures.
+6. Record results here and in the portfolio's existing status/decision documents. Leave both working trees unstaged and uncommitted for owner review.
+
+#### Integration results — 2026-11-21
+
+- The portfolio on `feat/nanodes-integration` installs the relative `vendor/nanodes-0.0.0.tgz` dependency. Contact uses the shared renderer/controller and the hero uses `prepareTextFrame` during SSR. Duplicated host rendering code and the second alphabet are removed; all 25 technology definitions stay in the portfolio.
+- All original SVG/label strings, colors and sequence entries, plus the static hero output, match exactly. The original desktop dimensions/font sizes are retained. Dark/light layouts at 320/390/768/1024/1440 px fit without horizontal overflow or artwork clipping.
+- Four generation tests, the Nanodes website type check, portfolio production and preview-base builds, and the portfolio's 19 standard/30 glass contrast checks pass. Browser review covers click, Enter, Space release, persistent pause/resume and reduced motion; the hero is present in production HTML without JavaScript. Review used Chromium; no wider browser support claim is added.
+- The reviewed tarball is 15,720 compressed bytes across 24 files, with only `dist` and standard package metadata/documentation. ESM, CSS and declarations resolve in a separate clean consumer. Private version `0.0.0` remains unpublished.
+- The portfolio retains its own theme/layout/dot-field effects. The owner subsequently removed its pause/resume control and the display outline on both sites; the library website retains its pause control. Verification evidence lives in its `docs/rebuild-02/33-nanodes-integration.md`; temporary captures remain outside the repositories. No reference directory, permanent comparison suite, staging, commits, pushes, merges or deployment were added by this task.
+
 **Complete when:** both displays consume Nanodes and match the reference experience. Production deployment is separate from local integration.
 
 ### Phase 5 — npm release
@@ -147,9 +164,9 @@ Automated coverage is limited to the four generation checks above. Chromium runs
 **Scope and tasks**
 
 - Confirm npm name availability, using a maintainer-owned scope if necessary.
-- Finalize ESM, declaration, CSS, and optional preset exports; allowlist distributed files.
+- Recheck the existing ESM, declaration, and CSS exports and `dist` allowlist against the chosen release version; add other exports only if needed.
 - Complete installation, API, styling, compatibility documentation, and required asset notices.
-- Inspect `npm pack --dry-run` and install the tarball in clean browser/Astro consumers.
+- Repeat package-content inspection and clean browser/Astro consumer installation checks for the final release artifact.
 - Verify React, Vue, and Svelte lifecycle examples before claiming support.
 - Choose a release version and notes; remove `private` only during release preparation.
 - Configure authentication, publish in a release task, verify registry installation, and tag the matching version.

@@ -96,7 +96,7 @@
 }
 
 .nanodes-display[role="button"] { cursor: pointer; }
-.nanodes-display:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.nanodes-display:focus { outline: none; }
 @media (max-width: 480px) {
   .nanodes-image { padding: 0.75rem 0.25rem; min-height: 240px; }
 }

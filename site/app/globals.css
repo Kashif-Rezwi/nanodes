@@ -534,9 +534,6 @@ pre {
 .glyph-host .nanodes-text {
   margin: 0;
 }
-.glyph-host .nanodes-display:focus-visible {
-  outline-color: var(--accent);
-}
 .glyph-fallback {
   position: absolute;
   margin: 0;

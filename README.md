@@ -14,6 +14,14 @@ Nanodes turns text and SVG paths into block-glyph displays with diagonal shimmer
 
 Images are filled SVG **path silhouettes** in a roughly 0–24 coordinate space. Text uses the original uppercase block alphabet: A–Z, numbers, spaces, `.`, `-`, and `/`.
 
+## Install
+
+```sh
+npm install nanodes
+```
+
+ES modules only; no runtime or framework peer dependencies. Use a bundler that resolves npm imports, or serve the compiled modules yourself. TypeScript declarations and CSS are included.
+
 ## Playground
 
 ```sh
@@ -27,7 +35,8 @@ Use a current Node.js LTS release and npm. Open [the website playground](http://
 ## Prepare content
 
 ```js
-import { prepareFrames, mountDisplay } from './dist/index.js';
+import { prepareFrames, mountDisplay } from 'nanodes';
+import 'nanodes/styles.css';
 
 const frames = prepareFrames([
   {
@@ -46,7 +55,7 @@ const display = mountDisplay(document.querySelector('#display'), frames, {
 // Call display.destroy() when the host is removed.
 ```
 
-Include `dist/styles.css` separately. The host supplies layout and available width. These are local build paths; npm exports are part of release preparation.
+Add `<div id="display"></div>` to the page before mounting. The host supplies layout and available width. Load `nanodes/styles.css` once in your app’s stylesheet entry point.
 
 - A scene has a non-empty accessible `label`, optional `color` (default `#a9c8ff`), and one or more nodes.
 - Text nodes contain `type: 'text'` and `text`. Options: `align` (`left`, `center`, `right`), `letterSpacing` (default 1 glyph column), `lineGap` (default 1 glyph row), `wrap` (default false), and `unsupported` (`blank` or `error`, default `blank`). Wrapping breaks at glyph boundaries, including inside words; it never clips part of a glyph.
@@ -59,6 +68,27 @@ Two helpers preserve the original portfolio treatment:
 - `prepareImageFrames(items, document?)` accepts `{ name, svg, color, scaleModifier? }` items and returns the original 38 × 17 SVG/label frames using the shared composer. `svg` is path data, not markup.
 
 Both the default hero helper and text-only `prepareFrames` work during SSR. SVG preparation requires a browser document (optional third argument to `prepareFrames`); importing the modules requires no browser globals. For static markup, place escaped glyph output in a `<pre aria-hidden="true">` with a meaningful plain-text equivalent. Use the matching `.nanodes-text` / `.nanodes-text-art` CSS classes for the original text treatment.
+
+## Framework integration
+
+Mount into an empty host after it exists in the browser and call `destroy()` on component removal. React/Next.js, Vue, Svelte, and Astro lifecycle examples are in [the integration guide](docs/integrations.md). Keep browser-only mounting and SVG sampling out of server-rendering code; pure text preparation supports SSR.
+
+## Local package integration
+
+To try changes from this checkout, build a local tarball:
+
+```sh
+npm ci
+npm pack
+```
+
+`prepack` builds the library automatically. In another project, install the generated artifact:
+
+```sh
+npm install /absolute/path/to/nanodes-0.1.0.tgz
+```
+
+Import from `nanodes` and `nanodes/styles.css` as shown above. The tarball contains compiled ES modules, declarations, CSS, and package documentation. The portfolio is the first integration of the extracted text and SVG treatment.
 
 ## Display and playback
 
@@ -80,14 +110,14 @@ Playback follows these rules:
 - Manual pause persists across selection, hover, focus, visibility, and motion changes; an active visible morph may finish.
 - Hover or focus holds autoplay even after a manual advance. Leaving resumes only when no other pause reason applies. Enter advances on press; Space advances on release after a press on that display. Losing focus or hiding the document cancels that press.
 - Hidden/offscreen displays cancel their work and settle the selected target. Manual selection there is immediate. Returning waits a fresh interval instead of showing a partial shimmer.
-- Reduced motion settles transitions, disables autoplay, and removes CSS hover enlargement/transitions. Hosts should offer a pause control for automatic displays; the website includes one.
+- Reduced motion settles transitions, disables autoplay, and removes CSS hover enlargement/transitions. Hosts can supply their own pause control; the library website includes one.
 - Destroy removes owned DOM, timers, animation frames, listeners, and observers; repeated destruction and later controls are inert.
 
 These scheduling rules deliberately harden the portfolio's hover/hidden-tab quirks; glyph sampling, settled output, shimmer geometry, and default timing remain unchanged.
 
 ## Styling and errors
 
-Set these on the host: `--nanodes-font-mono`, `--nanodes-font-size` (responsive cap), and `--nanodes-glow-radius`. Static text also uses `--nanodes-accent-text` and `--nanodes-accent`. Mounted frame colors are set through `--nanodes-color`. Defaults preserve the source treatment; font appearance varies across systems.
+Set these on the host: `--nanodes-font-mono`, `--nanodes-font-size` (responsive cap), and `--nanodes-glow-radius`. Static text also uses `--nanodes-accent-text` and `--nanodes-accent`. Mounted frame colors are set through `--nanodes-color`. Defaults preserve the source treatment; font appearance varies across systems. Interactive displays suppress their rectangular focus outline; hosts can provide a focus treatment that suits their design.
 
 Grid dimensions are integers from 1–512. Glyph spacing, line gaps, and node gaps allow 0–512. Empty text intentionally produces blank glyph rows; empty sequences/nodes and blank accessible labels are errors. Unsupported glyphs become spaces unless strict mode is selected. Overflows, invalid dimensions/options/selections, malformed path command groups, and SVG paths with no filled area in the sampling space fail explicitly. Colors are validated when mounted. Missing browser/Canvas capabilities fail without attaching a display. The path sampler is not a general SVG renderer.
 
@@ -97,7 +127,7 @@ The landing page and playground live in `site/`, an independent Next.js App Rout
 
 `npm run dev` starts the website, `npm run site:check` checks its types, and `npm run site:build` generates a static export in `site/out/`. These commands build the library first, updating `dist/` in place so checks can run while the website preview is open. Next.js watches website files; after editing library files in `src/`, run `npm run build` to refresh the compiled library.
 
-Before deploying the export, set `SITE_URL` to the real public origin so social image URLs use the production domain. The local default is `http://localhost:3000`. The site uses Space Grotesk and DM Sans from Fontsource's OFL-licensed font packages; npm publication of the library is a separate roadmap task.
+Before deploying the export, set `SITE_URL` to the real public origin so social image URLs use the production domain. The local default is `http://localhost:3000`. The site uses Space Grotesk and DM Sans from Fontsource's OFL-licensed font packages; library publication is tracked separately in the roadmap.
 
 ## Verification and development
 
@@ -116,4 +146,4 @@ See [the roadmap](docs/roadmap.md) for the development plan. Host entrance effec
 
 ## License
 
-[MIT](LICENSE). Verify third-party asset provenance and required notices before distribution.
+[MIT](LICENSE). The package contains the portfolio-derived block alphabet and glyph renderer; portfolio technology-brand paths and website font assets are not distributed. Consumers supply and license their own SVG paths.

@@ -65,7 +65,7 @@ The public playground uses three original geometric samples. Keep portfolio bran
 
 The separate `site/` Next.js App Router app introduces Nanodes and demonstrates the real library. Statically render the landing content, metadata, and social card; keep browser rendering and controls inside small client components. The library owns offscreen scheduling and keyboard advance; the website reuses its two bounded SVG frame sets. Use local fonts, native CSS, accessible controls, reduced-motion preferences, and cleanup/offscreen pause for animated specimens. Render the static wordmark with pure text preparation; update preview playback without resampling or remounting, and provide an explicit hero pause/resume control.
 
-The site consumes the compiled local library through a TypeScript alias and has its own dependency manifest and lockfile. Next.js and React are website dependencies only. Keep the website playground and public library API independent, and use source-build instructions until npm publication. `npm run dev` starts the website; the generation tests use a separate local fixture server. The README documents local commands and the production origin setting. Website work does not replace the hardening tasks below.
+The site consumes the compiled local library through a TypeScript alias and has its own dependency manifest and lockfile. Next.js and React are website dependencies only. Keep the website playground and public library API independent; public usage examples now use the published npm imports. `npm run dev` starts the website; the generation tests use a separate local fixture server. The README documents local commands and the production origin setting. Website work does not replace the hardening tasks below.
 
 ## Development phases
 
@@ -138,6 +138,23 @@ Automated coverage is limited to the four generation checks above. Chromium runs
 - Verify the production Astro build, responsive appearance, themes, interactions, and reduced motion.
 - Remove duplication after parity verification and record the integration results.
 
+#### Integration plan
+
+1. Add the minimal ESM/type/CSS exports and a `dist` file allowlist required to consume a real tarball. Keep version `0.0.0` and `private: true`; publication remains Phase 5.
+2. Pack the library into the portfolio's `vendor/` directory and install that relative file dependency on `feat/nanodes-integration`, based on portfolio `cb8d321`. Avoid workspace links so the installed artifact is the one being verified.
+3. Replace the Contact section's sampler, alphabet, transition, playback, and art CSS with Nanodes. Keep its 25 technology paths, colors, order, and scale modifiers in the portfolio. Use a processed Astro script for package imports and the shared controller for interaction.
+4. Render the hero with `prepareTextFrame` on the server and remove its duplicated alphabet. Map the portfolio's existing font/accent variables into the library CSS; retain host entrance and dot-field effects.
+5. Run the focused generation suite, inspect the package contents, build the portfolio, and review desktop/mobile, dark/light, keyboard, pause, and reduced-motion behavior. Compare the pre-change output without restoring permanent comparison tooling or fixtures.
+6. Record results here and in the portfolio's existing status/decision documents. Leave both working trees unstaged and uncommitted for owner review.
+
+#### Integration results — 2026-11-21
+
+- The portfolio on `feat/nanodes-integration` installs the relative `vendor/nanodes-0.0.0.tgz` dependency. Contact uses the shared renderer/controller and the hero uses `prepareTextFrame` during SSR. Duplicated host rendering code and the second alphabet are removed; all 25 technology definitions stay in the portfolio.
+- All original SVG/label strings, colors and sequence entries, plus the static hero output, match exactly. The original desktop dimensions/font sizes are retained. Dark/light layouts at 320/390/768/1024/1440 px fit without horizontal overflow or artwork clipping.
+- Four generation tests, the Nanodes website type check, portfolio production and preview-base builds, and the portfolio's 19 standard/30 glass contrast checks pass. Browser review covers click, Enter, Space release, persistent pause/resume and reduced motion; the hero is present in production HTML without JavaScript. Review used Chromium; no wider browser support claim is added.
+- The reviewed tarball is 15,720 compressed bytes across 24 files, with only `dist` and standard package metadata/documentation. ESM, CSS and declarations resolve in a separate clean consumer. Private version `0.0.0` remains unpublished.
+- The portfolio retains its own theme/layout/dot-field effects. The owner subsequently removed its pause/resume control and the display outline on both sites; the library website retains its pause control. Verification evidence lives in its `docs/rebuild-02/33-nanodes-integration.md`; temporary captures remain outside the repositories. No reference directory, permanent comparison suite, staging, commits, pushes, merges or deployment were added by this task.
+
 **Complete when:** both displays consume Nanodes and match the reference experience. Production deployment is separate from local integration.
 
 ### Phase 5 — npm release
@@ -147,12 +164,33 @@ Automated coverage is limited to the four generation checks above. Chromium runs
 **Scope and tasks**
 
 - Confirm npm name availability, using a maintainer-owned scope if necessary.
-- Finalize ESM, declaration, CSS, and optional preset exports; allowlist distributed files.
+- Recheck the existing ESM, declaration, and CSS exports and `dist` allowlist against the chosen release version; add other exports only if needed.
 - Complete installation, API, styling, compatibility documentation, and required asset notices.
-- Inspect `npm pack --dry-run` and install the tarball in clean browser/Astro consumers.
+- Repeat package-content inspection and clean browser/Astro consumer installation checks for the final release artifact.
 - Verify React, Vue, and Svelte lifecycle examples before claiming support.
 - Choose a release version and notes; remove `private` only during release preparation.
 - Configure authentication, publish in a release task, verify registry installation, and tag the matching version.
+
+#### Release preparation plan
+
+1. Prepare `nanodes@0.1.0` as the first release candidate. The initial public-registry lookup returned 404; ownership was confirmed only by the successful release below. Remove `private`, retain ESM/type/CSS exports, and build automatically with `prepack`.
+2. Keep the file allowlist limited to `dist`, the changelog and lifecycle integration guide, alongside npm's standard README/license/manifest files. Retain zero runtime and peer dependencies. Do not ship portfolio brand data or website fonts.
+3. Update installation/API examples to the public package imports. Verify React, Vue and Svelte mount/cleanup recipes using the actual tarball in temporary consumers, plus clean ESM/type/CSS imports. Keep the four permanent generation tests unchanged.
+4. Run generation checks, website type/build checks, inspect the tarball and perform a publish dry-run. Record the candidate's integrity and verification limits before release.
+5. After maintainer review and npm login, publish the exact reviewed tarball, verify a clean registry installation and record the release version. Commit/tag/push remain maintainer actions under the standing instruction.
+6. Only after registry verification, change the portfolio from its existing `0.0.0` vendor tarball to the exact published version, remove the vendor archive, update its lockfile and rebuild/review before deployment.
+
+#### Release record — 2026-11-21
+
+- **Published:** [`nanodes@0.1.0`](https://www.npmjs.com/package/nanodes/v/0.1.0) under the authenticated `kashif-rezwi` account, with `latest` pointing to `0.1.0`. The initial rejected token was replaced through npm's browser login; npm's separate publishing verification was completed by the owner. No credentials are stored in repository files.
+- **Artifact:** 26 files, 17,527 compressed bytes. README and changelog were finalized before publication. The final runtime, declarations and CSS match the tested candidate byte for byte. Registry integrity and a clean registry install match the exact published tarball: `sha512-HAyxOhIOeqdy7DJUkuUZwrthkP5nBNkwb5I1V0V6G6hyoEvhYuOZf0Orf96JxWF4fYnVxtEm6Bwr5dgKqZ6HqA==`.
+- **Contents:** compiled ESM, declarations, CSS, changelog, lifecycle guide and standard package metadata/README/license only. No runtime/peer dependencies, portfolio brand paths, website assets or test tools ship. `prepack` builds automatically; CI now also runs a non-publishing pack dry-run.
+- **Checks:** all four permanent generation tests, website type checking and the production static build pass. The permanent test suite remains unchanged. Clean ESM imports, browser-free text/composition, CSS resolution and public TypeScript contracts work with the actual package.
+- **Framework recipes:** React 19.3.1 (including development Strict Mode), Vue 3.5.46 and Svelte 5.59.1 recipes compile and render using Vite 8.3.8. Two mount/unmount cycles leave no owned display DOM. A clean Astro 7.3.2 production consumer renders static text and interactive SVG output. Browser review used Chromium; these smoke checks do not establish a wider browser/version guarantee. Temporary consumer scaffolds are outside both repositories.
+- **Portfolio:** the owner committed the Phase 4 integration as `fe13b47`. The current `feat/nanodes-integration` working tree now pins registry version `0.1.0` and its SHA-512 in the lockfile; the vendor archive is removed. Production build, unchanged static hero output, click advance, no-outline/no-pause appearance, and 19 standard/30 glass contrast checks pass. Its release dependency changes remain uncommitted.
+- **Website:** public installation examples now use `npm install nanodes` and `nanodes/styles.css` rather than source-build setup.
+
+The registry release and first consumer are verified. Git commits, a matching `v0.1.0` tag, pushes and production deployment remain maintainer actions under the standing instruction; none were performed by the agent. For subsequent releases, update the version/changelog, repeat the documented checks and inspect the final tarball before publishing a new version; `0.1.0` is already published and must not be republished.
 
 **Complete when:** registry consumers receive working exports, types, and CSS; no unintended files or runtime dependencies ship; the portfolio can use the release.
 

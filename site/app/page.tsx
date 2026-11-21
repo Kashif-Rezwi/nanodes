@@ -159,7 +159,7 @@ export default function Home() {
               />
               <p className="example-note">
                 Add <code>{'<div id="display"></div>'}</code> to your page and
-                include <code>dist/styles.css</code>.
+                include <code>nanodes/styles.css</code>.
               </p>
             </div>
           </div>
@@ -178,8 +178,7 @@ export default function Home() {
               to your site.
             </h2>
             <p>
-              Build the library from source, then follow the API docs to create
-              your first display.
+              Install Nanodes, add your content, and create your first display.
             </p>
             <div className="hero-actions">
               <a className="button button-primary" href={docs}>
@@ -192,12 +191,12 @@ export default function Home() {
           </div>
           <div className="setup-block">
             <CodeBlock
-              title="Build from source"
+              title="Install Nanodes"
               code={setupCommands}
               language="shell"
               label="Setup commands"
             />
-            <p className="example-note">Requires Node.js and npm.</p>
+            <p className="example-note">Zero runtime dependencies. TypeScript included.</p>
           </div>
         </section>
         <div className="site-footer container">

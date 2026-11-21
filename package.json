@@ -1,7 +1,6 @@
 {
   "name": "nanodes",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "description": "Dependency-free animated glyph text and images for the web.",
   "type": "module",
   "license": "MIT",
@@ -28,10 +27,31 @@
     "test": "npm run build && node --test tests/*.test.mjs && playwright test",
     "dev": "npm --prefix site run dev",
     "site:build": "npm --prefix site run build",
-    "site:check": "npm --prefix site run typecheck"
+    "site:check": "npm --prefix site run typecheck",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@playwright/test": "1.65.1",
     "typescript": "7.0.2"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "docs/integrations.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "sideEffects": [
+    "./dist/styles.css"
+  ],
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
